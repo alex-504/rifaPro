@@ -22,7 +22,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 3. **Caminhões/Motoristas** (Nível operacional)
    - Cadastram novos clientes finais (consumidores)
    - Criam notas (pedidos)
-   - Adicionam produtos à nota
+   - Adicionam produtos à nota.
    - Registram valores vendidos e recebidos
    - Calculam remarque e brindes
 
