@@ -1,8 +1,8 @@
-# Cronograma de Desenvolvimento - RifaGo
+# Cronograma de Desenvolvimento - RifaPro
 
 ## Introdução
 
-Este documento apresenta um cronograma detalhado para o desenvolvimento do sistema RifaGo, seguindo os princípios SOLID e a metodologia Agile. O desenvolvimento será organizado em sprints de 2 semanas, com revisões e ajustes ao final de cada sprint.
+Este documento apresenta um cronograma detalhado para o desenvolvimento do sistema RifaPro, seguindo os princípios SOLID e a metodologia Agile. O desenvolvimento será organizado em sprints de 2 semanas, com revisões e ajustes ao final de cada sprint.
 
 ## Princípios SOLID Aplicados
 
@@ -25,314 +25,260 @@ Este documento apresenta um cronograma detalhado para o desenvolvimento do siste
 ## Fase 1: Preparação e Configuração Inicial
 
 ### Sprint 0 (2 semanas)
-- **Objetivo**: Preparar ambiente e definir arquitetura
+- **Objetivo**: Preparar ambiente e configurar Firebase
 
 #### Semana 1
 1. Configurar repositório Git
-   - Criar estrutura de pastas (backend, frontend, mobile)
+   - Criar estrutura de pastas (frontend, mobile)
    - Configurar .gitignore e README
    - Definir estratégia de branches (Git Flow)
 
-2. Configurar ambiente de desenvolvimento
-   - Instalar Node.js, PostgreSQL, React e ferramentas necessárias
-   - Configurar ESLint e Prettier
-   - Configurar ambiente Docker para desenvolvimento (opcional)
+2. Configurar Firebase
+   - Criar projeto no Firebase Console
+   - Configurar Authentication
+   - Configurar Firestore
+   - Configurar Storage
+   - Configurar Hosting
 
-3. Definir arquitetura detalhada
-   - Finalizar diagrama de arquitetura
-   - Definir padrões de codificação
-   - Documentar padrões de API REST
+3. Configurar ambiente de desenvolvimento
+   - Instalar Node.js e ferramentas necessárias
+   - Configurar ESLint e Prettier
+   - Configurar TypeScript
 
 #### Semana 2
 4. Configurar projetos base
-   - Inicializar projeto Node.js (backend)
-   - Configurar Express.js e middleware básicos
-   - Configurar conexão com PostgreSQL
-   - Inicializar projeto React (frontend)
+   - Inicializar projeto Next.js (frontend)
+   - Configurar Material UI e React Query
    - Inicializar projeto React Native com Expo (mobile)
+   - Configurar React Navigation e React Native Paper
 
 5. Configurar CI/CD básico
-   - Configurar testes automatizados
-   - Configurar pipeline básico no GitHub Actions
+   - Configurar GitHub Actions
+   - Configurar Vercel para frontend
+   - Configurar EAS para mobile
 
 6. Implementar autenticação básica
-   - Configurar JWT e estratégia de tokens
-   - Implementar rotas de login/logout
+   - Configurar Firebase Auth
+   - Implementar login/logout
    - Criar middleware de autenticação
 
 ## Fase 2: Core do Sistema
 
 ### Sprint 1 (2 semanas)
-- **Objetivo**: Implementar gerenciamento de usuários e permissões
+- **Objetivo**: Implementar gerenciamento de usuários, permissões e galpões
 
 #### Semana 1
-1. Implementar modelos de dados de usuários
-   - Criar model User
-   - Implementar relacionamentos hierárquicos (Admin > Cliente > Motorista)
+1. Implementar modelos de dados de usuários e galpões
+   - Criar collections no Firestore
+   - Implementar regras de segurança
    - Implementar validações
+   - Definir relacionamentos entre usuários e galpões
 
-2. Implementar APIs de usuários
-   - CRUD para usuários (seguindo princípio Single Responsibility)
-   - Implementar controle de acesso baseado em funções
-   - Documentar APIs com Swagger
+2. Implementar autenticação e autorização
+   - Login/Logout
+   - Recuperação de senha
+   - Controle de acesso baseado em funções
+   - Perfil de gestor de galpão
 
 #### Semana 2
-3. Desenvolver telas de gerenciamento de usuários (Web)
+3. Desenvolver telas de gerenciamento (Web)
    - Tela de login
    - Dashboard administrativo
    - CRUD de usuários com diferentes perfis
+   - CRUD de galpões (apenas admin)
+   - Importação em massa via Excel
+   - Dashboard do gestor de galpão
 
-4. Desenvolver telas de autenticação (Mobile)
-   - Tela de login
-   - Armazenamento seguro de credenciais
-   - Lógica de sessão offline
-
-5. Testes e documentação
-   - Testes unitários para models
-   - Testes de integração para APIs
-   - Documentação atualizada
+4. Implementar funcionalidades de importação
+   - Criar template de Excel
+   - Implementar validação de dados
+   - Implementar importação em massa
+   - Implementar atualização parcial
+   - Implementar exportação de dados
 
 ### Sprint 2 (2 semanas)
-- **Objetivo**: Implementar gerenciamento de produtos e galpões
+- **Objetivo**: Implementar gestão de viagens e notas
 
 #### Semana 1
-1. Implementar modelos de dados de produtos e galpões
-   - Criar models Product e Warehouse
-   - Implementar relacionamentos
+1. Implementar modelos de dados de viagens e notas
+   - Criar collections no Firestore
+   - Implementar regras de segurança
    - Implementar validações
+   - Definir relacionamentos entre viagens e notas
 
-2. Implementar APIs de produtos e galpões
-   - CRUD para produtos (seguindo SOLID)
-   - CRUD para galpões
-   - APIs para relacionamento entre produtos e galpões
-
-3. Implementar importação via Excel (backend)
-   - Parser de arquivos Excel
-   - Validação de dados
-   - Registro de importação
+2. Implementar funcionalidades de viagens
+   - Criação de nova viagem
+   - Gestão de status (ativa, concluída, cancelada)
+   - Cálculo de valores (inicial, final, lucro)
+   - Relacionamentos com motoristas e donos
 
 #### Semana 2
-4. Desenvolver telas de gerenciamento de produtos (Web)
-   - Listagem de produtos
-   - Cadastro/edição de produtos
-   - Upload de Excel para importação
+3. Desenvolver telas de gestão de viagens (Web)
+   - Listagem de viagens
+   - Criação/edição de viagens
+   - Visualização de status
+   - Dashboard financeiro por viagem
+   - Relatórios consolidados
 
-5. Desenvolver telas de galpões (Web)
-   - Listagem de galpões
-   - Cadastro/edição de galpões
-   - Visualização de produtos por galpão
-
-6. Testes e documentação
-   - Testes unitários
-   - Testes de integração
-   - Documentação atualizada
+4. Desenvolver telas de viagens (Mobile)
+   - Criação de nova viagem
+   - Carregamento de produtos (nota)
+   - Acompanhamento em tempo real
+   - Visualização de status
+   - Gestão de notas
+   - Relatórios financeiros
 
 ### Sprint 3 (2 semanas)
-- **Objetivo**: Implementar gerenciamento de caminhões e notas
+- **Objetivo**: Implementar gestão de produtos e estoque
 
 #### Semana 1
-1. Implementar modelos de dados de caminhões e notas
-   - Criar models Truck e Note
-   - Implementar relacionamentos
+1. Implementar modelos de dados de produtos
+   - Criar collections no Firestore
+   - Implementar regras de segurança
    - Implementar validações
 
-2. Implementar APIs de caminhões e notas
-   - CRUD para caminhões
-   - CRUD para notas (carregamento)
-   - APIs para relacionamento entre notas e produtos
+2. Implementar funcionalidades de produtos
+   - CRUD de produtos
+   - Gestão de estoque
+   - Importação/exportação Excel
 
 #### Semana 2
-3. Desenvolver telas de gerenciamento de caminhões (Web)
-   - Listagem de caminhões
-   - Cadastro/edição de caminhões
-   - Associação com motoristas
+3. Desenvolver telas de gestão de produtos (Web)
+   - Listagem de produtos
+   - Cadastro/edição de produtos
+   - Upload de Excel
 
-4. Desenvolver telas de gerenciamento de notas (Web)
-   - Criação de notas de carregamento
-   - Adição de produtos de diferentes galpões
-   - Visualização do status das notas
-
-5. Testes e documentação
-   - Testes unitários
-   - Testes de integração
-   - Documentação atualizada
+4. Desenvolver telas de produtos (Mobile)
+   - Catálogo de produtos
+   - Gestão de estoque
+   - Busca e filtros
 
 ### Sprint 4 (2 semanas)
 - **Objetivo**: Implementar vendas e clientes finais
 
 #### Semana 1
-1. Implementar modelos de dados de vendas e clientes finais
-   - Criar models Sale e EndClient
-   - Implementar relacionamentos
+1. Implementar modelos de dados de vendas e clientes
+   - Criar collections no Firestore
+   - Implementar regras de segurança
    - Implementar validações
 
-2. Implementar APIs de vendas e clientes finais
-   - CRUD para vendas
-   - CRUD para clientes finais
-   - APIs para relacionamento entre vendas e notas/produtos
+2. Implementar funcionalidades de vendas
+   - CRUD de vendas
+   - Cálculo de valores
+   - Gestão de status
 
 #### Semana 2
-3. Desenvolver telas de cadastro de clientes finais (Mobile)
-   - Formulário de cadastro
-   - Listagem de clientes
-   - Busca de clientes
+3. Desenvolver telas de vendas (Mobile)
+   - Cadastro de clientes
+   - Registro de vendas
+   - Gestão de pagamentos
 
-4. Desenvolver telas de registro de vendas (Mobile)
-   - Seleção de produtos da nota
-   - Registro de valores e quantidades
-   - Cálculo automático de remarques
-
-5. Testes e documentação
-   - Testes unitários
-   - Testes de integração
-   - Documentação atualizada
+4. Desenvolver telas de relatórios (Web)
+   - Dashboard de vendas
+   - Relatórios por cliente
+   - Relatórios por viagem
 
 ### Sprint 5 (2 semanas)
 - **Objetivo**: Implementar pagamentos, remarques e brindes
 
 #### Semana 1
-1. Implementar modelos de dados de pagamentos, remarques e brindes
-   - Criar models Payment, Remarque e Gift
-   - Implementar relacionamentos
-   - Implementar validações e regras de negócio
+1. Implementar modelos de dados de pagamentos
+   - Criar collections no Firestore
+   - Implementar regras de segurança
+   - Implementar validações
 
-2. Implementar APIs correspondentes
-   - CRUD para pagamentos
-   - Lógica para cálculo automático de remarques
-   - Lógica para registro de brindes
+2. Implementar funcionalidades de pagamentos
+   - Registro de pagamentos
+   - Cálculo de remarques
+   - Gestão de brindes
 
 #### Semana 2
-3. Desenvolver telas de registro de pagamentos (Mobile)
-   - Registro de diferentes formas de pagamento
-   - Visualização de saldo pendente
-   - Registro de parciais
+3. Desenvolver telas de pagamentos (Mobile)
+   - Registro de pagamentos
+   - Visualização de remarques
+   - Gestão de brindes
 
-4. Desenvolver telas de remarques e brindes (Mobile)
-   - Visualização automática de remarques
-   - Registro de brindes
-   - Histórico por cliente
-
-5. Testes e documentação
-   - Testes unitários
-   - Testes de integração
-   - Documentação atualizada
+4. Desenvolver telas de relatórios financeiros (Web)
+   - Dashboard financeiro
+   - Relatórios de pagamentos
+   - Relatórios de remarques
 
 ### Sprint 6 (2 semanas)
 - **Objetivo**: Implementar sincronização offline/online
 
 #### Semana 1
-1. Implementar armazenamento local no app mobile
+1. Implementar armazenamento local
    - Configurar SQLite
    - Implementar modelos locais
-   - Implementar lógica de persistência local
+   - Implementar lógica de persistência
 
-2. Implementar detecção de conectividade
-   - Verificação periódica de conexão
-   - Queue de operações pendentes
-   - Interface de status de sincronização
-
-#### Semana 2
-3. Implementar sincronização bidirecional
-   - Upload de dados locais
-   - Download de atualizações
+2. Implementar sincronização
+   - Detecção de conectividade
+   - Queue de operações
    - Resolução de conflitos
 
-4. Testes e otimização
+#### Semana 2
+3. Testes e otimização
    - Testes de sincronização
-   - Otimização de performance
-   - Testes em diferentes cenários de conectividade
+   - Testes de performance
+   - Testes de usabilidade
 
-5. Documentação detalhada
-   - Fluxo de sincronização
-   - Resolução de problemas
+4. Documentação e deploy
+   - Documentação técnica
    - Guia do usuário
+   - Deploy em produção
 
 ## Fase 3: Refinamento e Preparação para Lançamento
 
 ### Sprint 7 (2 semanas)
-- **Objetivo**: Implementar dashboards e relatórios
+- **Objetivo**: Refinamento e otimização
 
 #### Semana 1
-1. Implementar backend para relatórios
-   - Agregações e consultas complexas
-   - Exportação para Excel
-   - Filtros e parâmetros
+1. Otimização de performance
+   - Análise de performance
+   - Otimização de queries
+   - Cache e indexação
 
-2. Desenvolver dashboards para administradores (Web)
-   - Visão geral de vendas
-   - Performance de caminhões/motoristas
-   - Indicadores por região
+2. Melhorias de UX/UI
+   - Feedback de usuários
+   - Ajustes de interface
+   - Melhorias de usabilidade
 
 #### Semana 2
-3. Desenvolver dashboards para clientes (Web)
-   - Visão específica para cada cliente
-   - Desempenho dos caminhões
-   - Histórico de vendas e pagamentos
-
-4. Desenvolver relatórios para motoristas (Mobile)
-   - Resumo de vendas
-   - Pendências de pagamento
-   - Histórico de desempenho
-
-5. Testes e documentação
-   - Validação de cálculos
-   - Testes de performance
-   - Documentação dos relatórios
-
-### Sprint 8 (2 semanas)
-- **Objetivo**: Testes integrados e correções
-
-#### Semana 1
-1. Testes de sistema completo
-   - Fluxos de trabalho end-to-end
-   - Testes de performance
+3. Testes finais
+   - Testes de integração
+   - Testes de carga
    - Testes de segurança
 
-2. Correção de bugs prioritários
-   - Resolução de problemas identificados
-   - Ajustes de performance
-   - Melhorias de UX
+4. Preparação para lançamento
+   - Documentação final
+   - Treinamento de usuários
+   - Plano de suporte
 
-#### Semana 2
-3. Teste com usuários reais (piloto)
-   - Sessões guiadas
-   - Coleta de feedback
-   - Ajustes baseados no feedback
-
-4. Documentação final
-   - Manual do usuário
-   - Documentação técnica
-   - Documentação de API
-
-### Sprint 9 (2 semanas)
-- **Objetivo**: Preparação para produção e lançamento
+### Sprint 8 (2 semanas)
+- **Objetivo**: Lançamento e monitoramento
 
 #### Semana 1
-1. Configuração de ambiente de produção
-   - Configuração do servidor Linode
-   - Instalação e configuração do PostgreSQL
-   - Configuração de backups automáticos
+1. Lançamento
+   - Deploy final
+   - Monitoramento inicial
+   - Suporte aos usuários
 
-2. Configuração de CI/CD para produção
-   - Pipeline completo de deploy
-   - Testes automatizados antes do deploy
-   - Rollback automatizado em caso de falha
+2. Coleta de feedback
+   - Análise de uso
+   - Feedback dos usuários
+   - Identificação de melhorias
 
 #### Semana 2
-3. Implantação em produção
-   - Deploy do backend
-   - Deploy do frontend
-   - Publicação do app mobile
+3. Ajustes pós-lançamento
+   - Correções de bugs
+   - Melhorias identificadas
+   - Otimizações necessárias
 
-4. Monitoramento inicial
-   - Configuração de logs e alertas
-   - Monitoramento de performance
-   - Monitoramento de erros
-
-5. Suporte pós-lançamento
-   - Canal de suporte
-   - Resolução de problemas
-   - Coleta contínua de feedback
+4. Planejamento de próximas fases
+   - Roadmap futuro
+   - Novas funcionalidades
+   - Escalabilidade do sistema
 
 ## Revisão do Cronograma
 
@@ -383,4 +329,4 @@ Para considerar uma tarefa como concluída, ela deve atender aos seguintes crit�
 
 ## Conclusão
 
-Este cronograma fornece um roteiro para o desenvolvimento do sistema RifaGo seguindo os princípios SOLID e a metodologia Agile. O desenvolvimento iterativo permitirá ajustes conforme necessário e a entrega contínua de valor aos usuários finais.
+Este cronograma fornece um roteiro para o desenvolvimento do sistema RifaPro seguindo os princípios SOLID e a metodologia Agile. O desenvolvimento iterativo permitirá ajustes conforme necessário e a entrega contínua de valor aos usuários finais.
