@@ -574,3 +574,75 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 4. Backup e recuperação de dados
 5. Documentação completa
 6. **Exportação de dados para planilhas**
+
+## 🚀 Workflow de Atualização do App
+
+Siga este fluxo para garantir que suas mudanças sejam aplicadas corretamente do desenvolvimento local até a produção no Firebase Hosting:
+
+### 1. Desenvolvimento Local
+- Crie uma branch para sua feature/correção:
+  ```bash
+  git checkout -b feat/nome-da-feature
+  ```
+- Faça as alterações no código.
+- Teste localmente:
+  ```bash
+  cd frontend
+  npm run dev
+  ```
+- Verifique se tudo funciona em `http://localhost:3000`.
+
+### 2. Versionamento e Pull Request (PR)
+- Adicione e faça commit das mudanças:
+  ```bash
+  git add .
+  git commit -m "feat: descrição da feature/correção"
+  ```
+- Envie para o GitHub:
+  ```bash
+  git push origin feat/nome-da-feature
+  ```
+- Abra um Pull Request (PR) no GitHub para a branch `main`.
+- Aguarde revisão e aprovação.
+- Faça o merge do PR na `main`.
+
+### 3. Deploy Automático com GitHub Actions
+A partir de agora, o deploy para o Firebase Hosting é feito automaticamente após o merge na branch `main`!
+
+#### Como funciona o workflow:
+- O arquivo `.github/workflows/firebase-hosting.yml` define o processo automatizado.
+- Sempre que houver um push na branch `main`, o GitHub Actions:
+  1. Faz checkout do código
+  2. Instala as dependências do frontend
+  3. Executa o build do Next.js
+  4. Faz o deploy para o Firebase Hosting usando as credenciais seguras
+
+#### Como configurar o segredo do Firebase:
+1. No [Firebase Console](https://console.firebase.google.com/), acesse seu projeto.
+2. Vá em **Configurações do projeto > Contas de serviço**.
+3. Clique em **Gerar nova chave privada** e baixe o arquivo JSON.
+4. No GitHub, acesse seu repositório > **Settings > Secrets and variables > Actions**.
+5. Clique em **New repository secret**.
+6. No campo "Name", coloque:
+   ```
+   FIREBASE_SERVICE_ACCOUNT
+   ```
+7. No campo "Value", cole todo o conteúdo do arquivo JSON baixado.
+8. Clique em **Add secret**.
+
+> **Atenção:** O segredo deve se chamar exatamente `FIREBASE_SERVICE_ACCOUNT` (apenas letras maiúsculas e underscores, sem espaços ou traços).
+
+#### O que acontece agora?
+- Após o merge na `main`, o deploy é feito automaticamente.
+- Você pode acompanhar o status do deploy na aba **Actions** do GitHub.
+- Não é mais necessário rodar `firebase deploy` manualmente, a não ser que queira forçar um deploy fora do fluxo padrão.
+
+### 4. Verifique em Produção
+- Acesse seu app em `https://rifapro-23e19.web.app/` para garantir que as mudanças estão online.
+
+---
+
+**Dica:** Se precisar rodar o deploy manualmente, ainda pode usar:
+```bash
+firebase deploy --only hosting
+```

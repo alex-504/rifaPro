@@ -384,3 +384,12 @@ Para considerar uma tarefa como concluída, ela deve atender aos seguintes crit�
 ## Conclusão
 
 Este cronograma fornece um roteiro para o desenvolvimento do sistema RifaGo seguindo os princípios SOLID e a metodologia Agile. O desenvolvimento iterativo permitirá ajustes conforme necessário e a entrega contínua de valor aos usuários finais.
+
+## Backlog de Melhorias Futuras (CI/CD e Workflow)
+
+- Adicionar testes automatizados (lint, unitários) no workflow do GitHub Actions
+- Implementar deploy de preview/staging para Pull Requests
+- Adicionar notificações de deploy (Slack, Discord, email)
+- Ativar proteção de branch main (branch protection rules)
+- Documentar exemplos de comandos de teste/lint no README
+- Revisar e limpar secrets periodicamente
