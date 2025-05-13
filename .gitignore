@@ -52,10 +52,10 @@ web-build/
 *.ipa
 
 # Firebase/Emulators
-# firebase-debug.log
-# .firebase/
-# dataconnect/.dataconnect/
-# dataconnect-generated/
+firebase-debug.log
+.firebase/
+dataconnect/.dataconnect/
+dataconnect-generated/
 
 # IDEs
 .idea/
