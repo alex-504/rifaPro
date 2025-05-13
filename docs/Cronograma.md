@@ -393,3 +393,8 @@ Este cronograma fornece um roteiro para o desenvolvimento do sistema RifaGo segu
 - Ativar proteção de branch main (branch protection rules)
 - Documentar exemplos de comandos de teste/lint no README
 - Revisar e limpar secrets periodicamente
+
+## Atualizações Recentes
+- Autenticação centralizada via Firebase Authentication (web e mobile)
+- CI/CD automatizado com GitHub Actions para build e deploy do frontend
+- Início do app mobile com Expo, integrado ao mesmo backend Firebase
