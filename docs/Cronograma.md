@@ -22,6 +22,13 @@ Este documento apresenta um cronograma detalhado para o desenvolvimento do siste
 - Testes contínuos e integração contínua
 - Feedback constante dos stakeholders
 
+## Atualização de Estratégia de Desenvolvimento
+
+- O backend (Firebase) já está instalado e configurado, permitindo o início imediato do desenvolvimento tanto do frontend web quanto do app mobile.
+- O app mobile (Expo/React Native) será focado nos motoristas, com funcionalidades de login, visualização de viagens/notas, registro de vendas e upload de comprovantes.
+- O frontend web (Next.js) será voltado para administradores, gestores de galpão e clientes, com dashboards, relatórios e gestão de entidades.
+- As sprints podem ser organizadas para desenvolvimento paralelo das duas plataformas, aproveitando o backend unificado.
+
 ## Fase 1: Preparação e Configuração Inicial
 
 ### Sprint 0 (2 semanas)
