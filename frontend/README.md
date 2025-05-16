@@ -1,3 +1,13 @@
+# RifaPro Frontend (Web)
+
+Este projeto faz parte do monorepo **RifaPro**.
+
+- **Frontend Web (Next.js):** voltado para administradores, gestores de galpão e clientes, com dashboards, relatórios e gestão de entidades.
+- **App Mobile (Expo/React Native):** focado nos motoristas, com funcionalidades de login, visualização de viagens/notas, registro de vendas e upload de comprovantes.
+- **Backend:** Firebase (Firestore, Auth, Storage) compartilhado entre web e mobile.
+- **Autenticação:** Centralizada via Firebase Authentication.
+- **CI/CD:** Deploy automatizado via GitHub Actions para o Firebase Hosting.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

@@ -647,6 +647,7 @@ A partir de agora, o deploy para o Firebase Hosting é feito automaticamente ap�
 firebase deploy --only hosting
 ```
 
+
 # CI/CD com GitHub Actions e Firebase Hosting
 
 ## Visão Geral
@@ -756,3 +757,13 @@ jobs:
 ---
 
 **Com esse setup, você está pronto para entregar software de forma ágil, segura e profissional!**
+
+## 🔒 Autenticação Centralizada
+A autenticação de usuários (web e mobile) é feita via Firebase Authentication, garantindo segurança e integração entre plataformas.
+
+## 🚀 CI/CD Automatizado
+O projeto utiliza GitHub Actions para build e deploy automáticos do frontend (Next.js) no Firebase Hosting. O deploy é disparado sempre que há merge na branch `main`, garantindo agilidade e segurança.
+
+## 📱 App Mobile
+O projeto conta com um app mobile desenvolvido em React Native com Expo, utilizando o mesmo backend Firebase para autenticação e dados. O repositório segue o padrão monorepo, com as pastas `frontend` (web) e `mobile` (mobile).
+
