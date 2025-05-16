@@ -1,3 +1,4 @@
+// 'use client';
 import { Role } from '@/constants/roles';
 
 export function hasRole(userRole: Role | null, allowedRoles: Role[]): boolean {

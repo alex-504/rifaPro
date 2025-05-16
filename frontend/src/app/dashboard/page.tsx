@@ -2,6 +2,7 @@
 
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ROLES } from '@/constants/roles';
+import Logo from '@/components/Logo';
 
 function KpiCard({ title, value, icon }: { title: string; value: string | number; icon?: React.ReactNode }) {
   return (
@@ -21,12 +22,13 @@ export default function DashboardPage() {
       <div className="min-h-screen flex bg-gray-100">
         {/* Sidebar */}
         <aside className="w-64 bg-white shadow-lg p-6 hidden md:block">
-          <img src="/rifapro-logo.svg" alt="RifaPro Logo" className="mb-8" />
+          <Logo />
           <nav className="flex flex-col gap-4">
             <a href="/dashboard" className="text-blue-600 font-semibold">Dashboard</a>
             <a href="/users" className="text-gray-700 hover:text-blue-600">Usuários</a>
             <a href="/warehouses" className="text-gray-700 hover:text-blue-600">Galpões</a>
             <a href="/products" className="text-gray-700 hover:text-blue-600">Produtos</a>
+            <a href="/truckers" className="text-gray-700 hover:text-blue-600">Motoristas</a>
             <a href="/sales" className="text-gray-700 hover:text-blue-600">Vendas</a>
             <a href="/end-clients" className="text-gray-700 hover:text-blue-600">Clientes Finais</a>
           </nav>

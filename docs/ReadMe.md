@@ -646,3 +646,113 @@ A partir de agora, o deploy para o Firebase Hosting é feito automaticamente ap�
 ```bash
 firebase deploy --only hosting
 ```
+
+# CI/CD com GitHub Actions e Firebase Hosting
+
+## Visão Geral
+
+Neste projeto, implementamos uma pipeline de CI/CD (Integração Contínua e Entrega Contínua) utilizando **GitHub Actions** para automatizar o build, testes e deploy do frontend (Next.js) diretamente no **Firebase Hosting**. Isso garante que cada alteração aprovada na branch principal seja automaticamente publicada em produção, reduzindo erros manuais e acelerando o ciclo de entrega.
+
+---
+
+## Etapas do CI/CD Implementado
+
+### 1. **Configuração do Workflow no GitHub Actions**
+- Criamos um arquivo de workflow em `.github/workflows/firebase-hosting.yml`.
+- O workflow é disparado automaticamente a cada push na branch `main`.
+- Etapas principais:
+  1. **Checkout do código**: Baixa o código do repositório.
+  2. **Instala dependências**: Executa `npm ci` para garantir ambiente limpo.
+  3. **Build do projeto**: Executa `npm run build` para gerar os arquivos de produção do Next.js.
+  4. **Deploy no Firebase Hosting**: Usa a action oficial do Firebase para publicar o build.
+
+### 2. **Configuração de Secrets (Credenciais Seguras)**
+- O deploy exige uma chave de serviço do Firebase (Service Account).
+- No GitHub, adicionamos o segredo `FIREBASE_SERVICE_ACCOUNT` em **Settings > Secrets and variables > Actions**.
+- O segredo é lido pelo workflow e usado para autenticar o deploy.
+
+### 3. **Deploy Automático**
+- Após o merge na branch `main`, o workflow executa todas as etapas e publica o app no Firebase Hosting.
+- O status do deploy pode ser acompanhado na aba **Actions** do GitHub.
+
+### 4. **Boas Práticas Adotadas**
+- **Branch principal protegida**: Só faz deploy após revisão e merge.
+- **Secrets nunca expostos no código**: Sempre via GitHub Secrets.
+- **Build limpo**: Uso de `npm ci` para evitar dependências corrompidas.
+- **Deploy sem intervenção manual**: Reduz erros e acelera entregas.
+
+---
+
+## Exemplo de Workflow (`firebase-hosting.yml`)
+```yaml
+name: Deploy to Firebase Hosting
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./frontend
+      - name: Build
+        run: npm run build
+        working-directory: ./frontend
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
+          channelId: live
+          projectId: rifapro-23e19
+          entryPoint: ./frontend
+```
+
+---
+
+## Como funciona na prática?
+1. Você faz um commit e push para a branch `main`.
+2. O GitHub Actions executa o workflow:
+   - Instala dependências
+   - Faz o build
+   - Faz o deploy automático
+3. O app é publicado em `https://rifapro-23e19.web.app/` sem necessidade de rodar comandos manuais.
+
+---
+
+## Como configurar do zero (resumido)
+1. Gere uma chave de serviço no Firebase Console (Configurações > Contas de serviço).
+2. Adicione o conteúdo do JSON como segredo `FIREBASE_SERVICE_ACCOUNT` no GitHub.
+3. Crie o arquivo `.github/workflows/firebase-hosting.yml` conforme o exemplo acima.
+4. Faça um push na branch `main` e acompanhe o deploy na aba Actions.
+
+---
+
+## Recomendações para Masterizar CI/CD e GitHub Actions
+- **Documentação oficial do GitHub Actions:**
+  - https://docs.github.com/en/actions
+- **Documentação do Firebase Hosting + GitHub Actions:**
+  - https://firebase.google.com/docs/hosting/github-integration
+- **Curso gratuito (YouTube):**
+  - "GitHub Actions: Automate your workflow" (https://www.youtube.com/watch?v=R8_veQiYBjI)
+- **Livro recomendado:**
+  - "CI/CD with Docker and Kubernetes" (para avançar em DevOps)
+- **Pratique:**
+  - Crie workflows para rodar testes, lint, deploy de preview, etc.
+  - Experimente usar matrizes de build, jobs paralelos e cache de dependências.
+
+---
+
+## Dicas Avançadas
+- Use ambientes de preview para Pull Requests (deploys temporários).
+- Adicione etapas de lint e testes automatizados antes do deploy.
+- Configure notificações de deploy (Slack, Discord, email).
+- Proteja a branch principal com regras de proteção.
+- Revise e limpe secrets periodicamente.
+
+---
+
+**Com esse setup, você está pronto para entregar software de forma ágil, segura e profissional!**
