@@ -64,8 +64,9 @@ export default function CompleteSignupPage() {
           formData.email,
           formData.password
         );
-      } catch (authError: any) {
-        if (authError.code === 'auth/email-already-in-use') {
+      } catch (authError: unknown) {
+        const errorCode = (authError as { code?: string })?.code;
+        if (errorCode === 'auth/email-already-in-use') {
           setError('Este email já possui uma conta no sistema. Você pode: 1) Tentar fazer login diretamente, 2) Usar a página de reset de conta, ou 3) Contatar o administrador.');
           setLoading(false);
           return;
@@ -203,7 +204,7 @@ export default function CompleteSignupPage() {
             Já tem uma conta ativa? Fazer login
           </a>
           <a href="/reset-account" className="block text-red-600 hover:text-red-800 text-sm">
-            Problema com "email já em uso"? Resetar conta
+            Problema com &quot;email já em uso&quot;? Resetar conta
           </a>
         </div>
       </div>
