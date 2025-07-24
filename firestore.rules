@@ -1,0 +1,58 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Função para verificar se o usuário está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Função para verificar se é admin
+    function isAdmin() {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['app_admin', 'client_admin'];
+    }
+    
+    // Função para verificar se é o próprio usuário
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Regras para coleção de usuários
+    match /users/{userId} {
+      // Leitura: usuário pode ler próprios dados, admins podem ler todos, 
+      // usuários autenticados podem ler para complete-signup
+      allow read: if isOwner(userId) || isAdmin() || isAuthenticated();
+      
+      // Criação: admins podem criar usuários OU usuário pode criar seu próprio documento durante ativação
+      allow create: if isAdmin() || (isAuthenticated() && request.auth.uid == userId);
+      
+      // Atualização: usuário pode atualizar próprios dados, admins podem atualizar todos
+      allow update: if isOwner(userId) || isAdmin();
+      
+      // Exclusão: admins podem deletar qualquer usuário, usuários podem deletar próprios documentos pending
+      allow delete: if isAdmin() || (isAuthenticated() && resource.data.status == 'pending');
+    }
+    
+    // Regras para outras coleções (quando criarmos)
+    match /clients/{clientId} {
+      allow read, write: if isAdmin();
+    }
+    
+    match /warehouses/{warehouseId} {
+      allow read, write: if isAdmin();
+    }
+    
+    match /products/{productId} {
+      allow read, write: if isAdmin();
+    }
+    
+    match /notes/{noteId} {
+      allow read, write: if isAdmin();
+    }
+    
+    match /sales/{saleId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

@@ -1,57 +1,132 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ROLES } from '@/constants/roles';
-import Logo from '@/components/Logo';
+import Sidebar from '@/components/Sidebar';
+import { FirestoreService } from '@/lib/firestore';
+import { useAuth } from '@/providers/AuthProvider';
 
-function KpiCard({ title, value, icon }: { title: string; value: string | number; icon?: React.ReactNode }) {
+function KpiCard({ title, value, icon, loading }: { 
+  title: string; 
+  value: string | number; 
+  icon?: React.ReactNode;
+  loading?: boolean;
+}) {
   return (
     <div className="bg-white rounded-lg shadow p-6 flex items-center gap-4">
       {icon && <div className="text-3xl text-blue-600">{icon}</div>}
       <div>
         <div className="text-gray-500 text-sm">{title}</div>
-        <div className="text-2xl font-bold">{value}</div>
+        <div className="text-2xl font-bold">
+          {loading ? (
+            <div className="animate-pulse bg-gray-200 h-8 w-16 rounded"></div>
+          ) : (
+            value
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
 export default function DashboardPage() {
+  const { userName } = useAuth();
+  const [stats, setStats] = useState({
+    users: 0,
+    clients: 0,
+    warehouses: 0,
+    products: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadStats();
+  }, []);
+
+  const loadStats = async () => {
+    try {
+      const [users, clients] = await Promise.all([
+        FirestoreService.getAllUsers(),
+        FirestoreService.getAllClients(),
+      ]);
+
+      setStats({
+        users: users.length,
+        clients: clients.length,
+        warehouses: 0, // Will implement later
+        products: 0, // Will implement later
+      });
+    } catch (error) {
+      console.error('Error loading stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <ProtectedRoute allowedRoles={[ROLES.APP_ADMIN, ROLES.CLIENT_ADMIN]}>
       <div className="min-h-screen flex bg-gray-100">
-        {/* Sidebar */}
-        <aside className="w-64 bg-white shadow-lg p-6 hidden md:block">
-          <Logo />
-          <nav className="flex flex-col gap-4">
-            <a href="/dashboard" className="text-blue-600 font-semibold">Dashboard</a>
-            <a href="/users" className="text-gray-700 hover:text-blue-600">Usuários</a>
-            <a href="/warehouses" className="text-gray-700 hover:text-blue-600">Galpões</a>
-            <a href="/products" className="text-gray-700 hover:text-blue-600">Produtos</a>
-            <a href="/truckers" className="text-gray-700 hover:text-blue-600">Motoristas</a>
-            <a href="/sales" className="text-gray-700 hover:text-blue-600">Vendas</a>
-            <a href="/end-clients" className="text-gray-700 hover:text-blue-600">Clientes Finais</a>
-          </nav>
-        </aside>
+        <Sidebar />
 
         {/* Main Content */}
         <main className="flex-1 p-8">
           {/* Header */}
-          <header className="mb-8 flex justify-between items-center">
-            <h1 className="text-3xl font-bold" style={{ color: '#33CCCC' }}>Dashboard</h1>
+          <header className="mb-8">
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
+              <span className="text-2xl">👋</span>
+            </div>
+            <p className="text-gray-600">
+              {userName ? (
+                <>Bem-vindo de volta, <span className="font-semibold text-blue-600">{userName}</span>!</>
+              ) : (
+                'Bem-vindo ao RifaPro'
+              )}
+            </p>
           </header>
 
           {/* KPIs */}
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <KpiCard title="Usuários" value={12} icon="👤" />
-            <KpiCard title="Galpões" value={4} icon="🏢" />
-            <KpiCard title="Vendas" value={128} icon="💰" />
+          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <KpiCard title="Usuários" value={stats.users} icon="👤" loading={loading} />
+            <KpiCard title="Clientes" value={stats.clients} icon="🏢" loading={loading} />
+            <KpiCard title="Galpões" value={stats.warehouses} icon="🏭" loading={loading} />
+            <KpiCard title="Produtos" value={stats.products} icon="📦" loading={loading} />
           </section>
 
-          {/* Gráficos ou tabelas */}
-          <section className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold mb-4" style={{ color: '#33CCCC' }}>Resumo de Atividades</h2>
-            <div className="text-gray-500">Aqui você pode adicionar gráficos, tabelas ou relatórios.</div>
+          {/* Quick Actions */}
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-bold mb-4 text-gray-800">Ações Rápidas</h2>
+              <div className="space-y-3">
+                <a href="/users" className="block p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">👤</span>
+                    <span className="font-medium">Gerenciar Usuários</span>
+                  </div>
+                </a>
+                <a href="/products" className="block p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">📦</span>
+                    <span className="font-medium">Gerenciar Produtos</span>
+                  </div>
+                </a>
+                <a href="/notes" className="block p-3 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">📋</span>
+                    <span className="font-medium">Criar Nova Nota</span>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-bold mb-4 text-gray-800">Atividade Recente</h2>
+              <div className="text-gray-500 text-center py-8">
+                <p>Nenhuma atividade recente</p>
+                <p className="text-sm mt-2">As atividades aparecerão aqui conforme você usar o sistema</p>
+              </div>
+            </div>
           </section>
         </main>
       </div>
