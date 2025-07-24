@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { ROLES } from '@/constants/roles';
+import { ROLES, Role } from '@/constants/roles';
 import { FirestoreService, User } from '@/lib/firestore';
 // Imports removidos - não estamos usando Firebase Functions aqui
 
@@ -46,7 +46,7 @@ export default function UsersPage() {
       const userData = {
         name: formData.name,
         email: formData.email,
-        role: formData.role,
+        role: formData.role as Role,
         status: 'pending' as const, // They'll need to complete setup
         needsPasswordSetup: true,
         ...(formData.clientId.trim() && { clientId: formData.clientId }),
