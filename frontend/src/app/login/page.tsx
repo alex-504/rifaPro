@@ -18,7 +18,7 @@ export default function LoginPage() {
     setError("");
     
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth, email, password);
       
       // Aguardar um pouco para o AuthProvider processar o usuário
       setTimeout(() => {
@@ -27,19 +27,20 @@ export default function LoginPage() {
         router.push("/");
       }, 500);
       
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Login error:', err);
       
       // Tratamento específico de erros do Firebase
-      if (err.code === 'auth/user-not-found') {
+      const errorCode = (err as { code?: string })?.code;
+      if (errorCode === 'auth/user-not-found') {
         setError('Usuário não encontrado. Verifique o email.');
-      } else if (err.code === 'auth/wrong-password') {
+      } else if (errorCode === 'auth/wrong-password') {
         setError('Senha incorreta. Tente novamente.');
-      } else if (err.code === 'auth/invalid-email') {
+      } else if (errorCode === 'auth/invalid-email') {
         setError('Email inválido.');
-      } else if (err.code === 'auth/user-disabled') {
+      } else if (errorCode === 'auth/user-disabled') {
         setError('Conta desabilitada. Contate o administrador.');
-      } else if (err.code === 'auth/too-many-requests') {
+      } else if (errorCode === 'auth/too-many-requests') {
         setError('Muitas tentativas. Tente novamente mais tarde.');
       } else {
         setError('Erro ao fazer login. Verifique suas credenciais.');

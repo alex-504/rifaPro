@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { FirestoreService } from '@/lib/firestore';
 import { useRouter } from 'next/navigation';
@@ -98,13 +98,14 @@ export default function CompleteSignupPage() {
     } catch (error: unknown) {
       console.error('Error completing signup:', error);
 
-      if (error?.code === 'auth/email-already-in-use') {
+      const errorCode = (error as { code?: string })?.code;
+      if (errorCode === 'auth/email-already-in-use') {
         setError(
           'Este email já possui uma conta no sistema. ' +
           'Se você esqueceu a senha, tente fazer login. ' +
           'Se a conta está com problemas, use a página de reset: /reset-account'
         );
-      } else if (error?.code === 'auth/weak-password') {
+      } else if (errorCode === 'auth/weak-password') {
         setError('A senha deve ter pelo menos 6 caracteres.');
       } else {
         setError('Erro ao ativar conta. Tente novamente.');

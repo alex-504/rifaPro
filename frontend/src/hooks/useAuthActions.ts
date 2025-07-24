@@ -15,18 +15,19 @@ export function useAuthActions() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       return { success: true };
-    } catch (err: any) {
+    } catch (err: unknown) {
       let errorMessage = 'Erro ao fazer login. Verifique suas credenciais.';
       
-      if (err.code === 'auth/user-not-found') {
+      const errorCode = (err as { code?: string })?.code;
+      if (errorCode === 'auth/user-not-found') {
         errorMessage = 'Usuário não encontrado. Verifique o email.';
-      } else if (err.code === 'auth/wrong-password') {
+      } else if (errorCode === 'auth/wrong-password') {
         errorMessage = 'Senha incorreta. Tente novamente.';
-      } else if (err.code === 'auth/invalid-email') {
+      } else if (errorCode === 'auth/invalid-email') {
         errorMessage = 'Email inválido.';
-      } else if (err.code === 'auth/user-disabled') {
+      } else if (errorCode === 'auth/user-disabled') {
         errorMessage = 'Conta desabilitada. Contate o administrador.';
-      } else if (err.code === 'auth/too-many-requests') {
+      } else if (errorCode === 'auth/too-many-requests') {
         errorMessage = 'Muitas tentativas. Tente novamente mais tarde.';
       }
       
@@ -45,7 +46,7 @@ export function useAuthActions() {
       await signOut(auth);
       router.push('/login');
       return { success: true };
-    } catch (err: any) {
+    } catch {
       const errorMessage = 'Erro ao fazer logout. Tente novamente.';
       setError(errorMessage);
       return { success: false, error: errorMessage };

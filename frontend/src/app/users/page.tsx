@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ROLES } from '@/constants/roles';
 import { FirestoreService, User } from '@/lib/firestore';
-import { httpsCallable } from 'firebase/functions';
-import { functions } from '@/lib/firebase';
+// Imports removidos - não estamos usando Firebase Functions aqui
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -54,7 +53,7 @@ export default function UsersPage() {
       };
 
       // Create user document in Firestore (they'll complete auth setup later)
-      const userId = await FirestoreService.createUser(userData);
+      await FirestoreService.createUser(userData);
 
       // Success! Your admin session is completely unaffected
       alert(`Usuário criado com sucesso!\n\nInstrua o usuário a:\n1. Acessar: ${window.location.origin}/complete-signup\n2. Inserir o email: ${formData.email}\n3. Criar uma senha\n\nApós isso, eles poderão fazer login normalmente.`);

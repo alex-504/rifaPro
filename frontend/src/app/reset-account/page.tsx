@@ -28,7 +28,7 @@ export default function ResetAccountPage() {
       // Tentar deletar o documento do Firestore (se existir)
       try {
         await FirestoreService.deleteDocument('users', userCredential.user.uid);
-      } catch (firestoreError) {
+      } catch {
         console.log('Documento não encontrado no Firestore (normal)');
       }
 
@@ -36,14 +36,15 @@ export default function ResetAccountPage() {
       setEmail('');
       setPassword('');
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error resetting account:', error);
       
-      if (error.code === 'auth/user-not-found') {
+      const errorCode = (error as { code?: string })?.code;
+      if (errorCode === 'auth/user-not-found') {
         setError('Usuário não encontrado. Talvez a conta já tenha sido deletada.');
-      } else if (error.code === 'auth/wrong-password') {
+      } else if (errorCode === 'auth/wrong-password') {
         setError('Senha incorreta. Digite a senha atual da conta.');
-      } else if (error.code === 'auth/invalid-email') {
+      } else if (errorCode === 'auth/invalid-email') {
         setError('Email inválido.');
       } else {
         setError('Erro ao resetar conta. Tente novamente ou contate o administrador.');
@@ -63,7 +64,7 @@ export default function ResetAccountPage() {
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg mb-6">
           <p className="text-sm">
             <strong>⚠️ Atenção:</strong> Esta página deleta completamente uma conta existente. 
-            Use apenas se você recebeu o erro "email já em uso" e tem certeza de que quer resetar.
+            Use apenas se você recebeu o erro &quot;email já em uso&quot; e tem certeza de que quer resetar.
           </p>
         </div>
 
