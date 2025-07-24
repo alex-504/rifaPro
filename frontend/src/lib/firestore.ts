@@ -180,7 +180,7 @@ export class FirestoreService {
   }
 
   // Generic update function
-  static async updateDocument(collectionName: string, docId: string, data: unknown) {
+  static async updateDocument(collectionName: string, docId: string, data: Record<string, unknown>) {
     const docRef = doc(db, collectionName, docId);
     await updateDoc(docRef, {
       ...data,
