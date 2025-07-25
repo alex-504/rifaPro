@@ -3,11 +3,6 @@ import * as admin from "firebase-admin";
 
 admin.initializeApp();
 
-// Função de teste simples
-export const helloWorld = functions.https.onCall(async () => ({
-  message: "Hello World!",
-}));
-
 // Interface para os dados de criação de usuário
 interface CreateUserData {
   email: string;
