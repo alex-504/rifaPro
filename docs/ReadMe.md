@@ -3,40 +3,57 @@
 ## 1. Visão Geral do Sistema
 
 ### 1.1 Descrição
+
 Sistema integrado para gestão de rifeiros/vendedores consignados que saem de Lagoa da Prata para realizar vendas no interior do Brasil, principalmente no Nordeste. O sistema visa substituir os processos manuais atuais, reduzir erros e melhorar o controle financeiro e de estoque.
 
 ### 1.2 Estrutura Organizacional
+
 O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 
 1. **App Admin** (Nível superior)
-   - Desenvolvedor do app
-   - Adiciona novos clientes empresariais
-   - Tem acesso a todas as funções dos clientes
 
-2. **Clientes** (Nível intermediário - A, B, N)
-   - Admin dos caminhões
-   - Registra novos caminhões
-   - Monitora vendas, notas e registros
-   - Pode editar valores feitos pelos caminhões
+   - Poder absoluto - pode realizar todas as operações em todos os níveis
+   - Troubleshooting e suporte aos usuários
+   - Adiciona Client Admins e todos os outros tipos de usuários
+   - Foco em dar suporte robusto quando algo der errado
+   - Todas as transações registram metadados para auditoria fácil
 
-3. **Caminhões/Motoristas** (Nível operacional)
-   - Cadastram novos clientes finais (consumidores)
-   - Criam notas (pedidos)
-   - Adicionam produtos à nota.
-   - Registram valores vendidos e recebidos
-   - Calculam remarque e brindes
+2. **Client Admin - Dono da Frota** (Cliente que paga pelo serviço)
 
-4. **Galpões** (Fornecedores de produtos)
-   - Adicionam/removem produtos
-   - Fornecem metadados para os caminhões
-   - Participam da criação de notas (carregamento do caminhão)
+   - Adiciona caminhões e motoristas
+   - Dashboard em tempo real para acompanhar vendas
+   - Faz pagamentos via PIX para galpões
+   - Acesso a relatórios e métricas de performance
+   - Interface focada em impressionar (cliente principal)
+
+3. **Motoristas/Caminhoneiros** (Usuários do app mobile)
+
+   - Criam NOTAS dinâmicas (coleção de produtos para carregar)
+   - Registram vendas com timestamps detalhados durante viagem
+   - Cadastram clientes finais (Dona Maria)
+   - Consultam disponibilidade e promoções dos galpões
+   - Fonte de todos os dados de venda (input principal)
+   - Trabalham offline e sincronizam quando retornam
+
+4. **Galpões** (Independentes - servem múltiplos Client Admins)
+   - Cadastram produtos com preços e promoções
+   - Confirmam disponibilidade de estoque para NOTAS
+   - Recebem pagamentos via PIX e confirmam recebimento
+   - Interface atrativa para promover produtos aos motoristas
+   - Participam do sistema de chat para comunicação
 
 ### 1.3 Conceitos Principais do Negócio
-- **Notas**: Relação de produtos que o caminhão carrega antes de sair para vender. Podem conter produtos de diferentes galpões (A, B, C, etc.)
+
+- **Notas**: Relação de produtos que o caminhão carrega antes de sair para vender. São dinâmicas e registram vendas com timestamps durante a viagem. Podem conter produtos de diferentes galpões independentes.
+- **Galpões Independentes**: Servem múltiplos Client Admins. Têm interface atrativa com promoções e descontos. Confirmam disponibilidade de estoque antes da carga.
+- **Fluxo de Pagamento**: Client Admin paga Galpão via PIX → Galpão confirma recebimento → Libera estoque para carregamento.
+- **Sistema de Chat/Intranet**: Comunicação entre Galpão, Client Admin e Motoristas do mesmo contexto. Facilita aprovação de notas e resolução de problemas.
 - **Remarques**: Sistema de bonificação quando os motoristas conseguem vender o valor cheio da nota, sem diferença. Calculados automaticamente (valor da nota - valor pago).
 - **Brindes**: Dados aos clientes finais que vendem toda a mercadoria. O valor é definido pelo motorista no momento da coleta do dinheiro e da mercadoria que eventualmente não foi vendida.
+- **Geolocalização**: Tracking em tempo real dos motoristas para métricas de performance e cumprimento de metas.
 
 ### 1.4 Componentes Principais
+
 1. **Aplicativo Mobile** - Para uso dos vendedores em campo
 2. **Painel Administrativo Web** - Para gestores (clientes e admin)
 3. **Backend API** - Para comunicação entre os sistemas e gerenciamento de dados
@@ -44,6 +61,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 ## 2. Stack Tecnológico
 
 ### 2.1 Frontend Web (Painel Administrativo)
+
 - **Framework**: React.js
 - **UI Library**: Material UI
 - **State Management**: Redux (ou Context API)
@@ -53,6 +71,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 - **Processamento de Excel**: SheetJS (xlsx)
 
 ### 2.2 Aplicativo Mobile
+
 - **Framework**: React Native
 - **Navegação**: React Navigation
 - **State Management**: Redux
@@ -62,6 +81,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 - **Gerenciamento Offline**: Redux-Persist
 
 ### 2.3 Backend
+
 - **Runtime**: Node.js
 - **Framework**: Express.js
 - **ORM**: Sequelize
@@ -71,10 +91,12 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 - **Processamento de Excel**: exceljs, multer
 
 ### 2.4 Banco de Dados
+
 - **Principal (Servidor)**: PostgreSQL
 - **Local (Mobile)**: SQLite
 
 ### 2.5 DevOps
+
 - **Controle de Versão**: Git (GitHub)
 - **Ambiente de Desenvolvimento**: Local
 - **Ambiente de Produção**: Linode
@@ -83,6 +105,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 ## 3. Arquitetura do Sistema
 
 ### 3.1 Diagrama de Arquitetura
+
 ```
 ┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐
 │  App Mobile     │       │  Backend API    │       │  Frontend Web   │
@@ -97,6 +120,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 ```
 
 ### 3.2 Hierarquia de Acesso
+
 ```
 ┌─────────────────┐
 │    App Admin    │
@@ -115,43 +139,59 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 └───────────┘ └───────┘ └───────┘ └───────┘
 ```
 
-### 3.3 Fluxo de Negócio
+### 3.3 Fluxo de Negócio Completo
+
 ```
-┌─────────────┐         ┌─────────────┐         ┌─────────────┐
-│   Galpão    │──────►  │  Caminhão   │──────►  │   Cliente   │
-│ (Produtos)  │         │   (Nota)    │         │   Final     │
-└─────────────┘         └─────────────┘         └─────────────┘
-                              │
-                              ▼
-                        ┌─────────────┐
-                        │    Venda    │
-                        │(Remarque/   │
-                        │  Brinde)    │
-                        └─────────────┘
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   Galpão    │    │ Client Admin│    │  Motorista  │    │   Cliente   │
+│ (Produtos)  │    │ (Dono Frota)│    │ (Caminhão)  │    │   Final     │
+└──────┬──────┘    └──────┬──────┘    └──────┬──────┘    └──────┬──────┘
+       │                  │                  │                  │
+       │ 1. Cadastra      │ 2. Cria NOTA     │ 3. Solicita      │
+       │    Produtos      │    (Pedido)      │    Aprovação     │
+       │                  │                  │                  │
+       │ 4. Aprova NOTA   │ 5. Faz PIX       │ 6. Carrega       │ 7. Vende
+       │    (Estoque OK)  │    (Pagamento)   │    Produtos      │    Produtos
+       │                  │                  │                  │
+       │ 8. Confirma      │ 9. Dashboard     │ 10. Registra     │ 11. Paga
+       │    Recebimento   │    Tempo Real    │     Vendas       │     Motorista
+       │                  │                  │    (Offline)     │
+       └──────────────────┼──────────────────┼──────────────────┘
+                          │                  │
+                          │ 12. Relatórios   │ 13. Sincroniza
+                          │     Finais       │     Dados
+                          │                  │
+                    ┌─────────────────────────────────────┐
+                    │        Sistema de Chat              │
+                    │    (Galpão ↔ Client ↔ Motorista)   │
+                    └─────────────────────────────────────┘
 ```
 
 ### 3.4 Fluxo de Sincronização
+
 1. **Offline**: App armazena dados localmente em SQLite
 2. **Online**: Ao detectar conexão, sincroniza com o servidor
 3. **Conflitos**: Resolução baseada em timestamps e regras de negócio
 
 ### 3.5 Processamento de Planilhas Excel
+
 1. **Upload**: Usuário faz upload da planilha através do painel web
 2. **Validação**: Sistema valida estrutura e dados da planilha
 3. **Processamento**: Dados são processados e inseridos no banco
 4. **Relatório**: Sistema gera relatório de sucesso/falhas na importação
 5. **Download**: Dados do inventário do caminhão podem ser baixados em formato Excel Planilhas Excel
-1. **Upload**: Usuário faz upload da planilha através do painel web
-2. **Validação**: Sistema valida estrutura e dados da planilha
-3. **Processamento**: Dados são processados e inseridos no banco
-4. **Relatório**: Sistema gera relatório de sucesso/falhas na importação
-5. **Download**: Dados do inventário do caminhão podem ser baixados em formato Excel
+6. **Upload**: Usuário faz upload da planilha através do painel web
+7. **Validação**: Sistema valida estrutura e dados da planilha
+8. **Processamento**: Dados são processados e inseridos no banco
+9. **Relatório**: Sistema gera relatório de sucesso/falhas na importação
+10. **Download**: Dados do inventário do caminhão podem ser baixados em formato Excel
 
 ## 4. Modelagem de Dados
 
 ### 4.1 Entidades Principais
 
 #### Users (Usuários)
+
 ```
 - id: INT PRIMARY KEY
 - name: VARCHAR
@@ -164,6 +204,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 ```
 
 #### Clients (Clientes Empresariais)
+
 ```
 - id: INT PRIMARY KEY
 - name: VARCHAR
@@ -178,6 +219,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 ```
 
 #### EndClients (Clientes Finais)
+
 ```
 - id: INT PRIMARY KEY
 - name: VARCHAR
@@ -193,6 +235,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 ```
 
 #### Drivers (Motoristas/Vendedores)
+
 ```
 - id: INT PRIMARY KEY
 - user_id: INT FOREIGN KEY (Users.id)
@@ -209,6 +252,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 ```
 
 #### Warehouses (Galpões)
+
 ```
 - id: INT PRIMARY KEY
 - name: VARCHAR
@@ -222,6 +266,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 ```
 
 #### Products (Produtos)
+
 ```
 - id: INT PRIMARY KEY
 - name: VARCHAR
@@ -238,6 +283,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 ```
 
 #### Trucks (Caminhões)
+
 ```
 - id: INT PRIMARY KEY
 - plate: VARCHAR
@@ -250,22 +296,69 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 - updated_at: TIMESTAMP
 ```
 
-#### Notes (Notas - Carregamento do Caminhão)
+#### Notes (Notas - Carregamento do Caminhão - DINÂMICAS)
+
 ```
 - id: INT PRIMARY KEY
 - truck_id: INT FOREIGN KEY (Trucks.id)
 - driver_id: INT FOREIGN KEY (Drivers.id)
 - client_id: INT FOREIGN KEY (Clients.id)
+- warehouse_ids: JSON ARRAY (múltiplos galpões)
 - total_amount: DECIMAL
-- status: ENUM [loading, on_route, completed, canceled]
+- status: ENUM [pending_approval, approved_awaiting_payment, payment_pending, paid_ready_to_load, loading, on_route, completed, canceled]
 - departure_date: TIMESTAMP
 - return_date: TIMESTAMP
+- payment_confirmed_at: TIMESTAMP
+- payment_confirmed_by: INT FOREIGN KEY (Users.id)
 - sync_status: ENUM [synced, pending]
 - created_at: TIMESTAMP
 - updated_at: TIMESTAMP
 ```
 
+#### NoteEvents (Eventos Dinâmicos das Notas)
+
+```
+- id: INT PRIMARY KEY
+- note_id: INT FOREIGN KEY (Notes.id)
+- event_type: ENUM [SALE, PAYMENT, RETURN, DISCOUNT, GIFT]
+- product_id: INT FOREIGN KEY (Products.id)
+- end_client_id: INT FOREIGN KEY (EndClients.id)
+- quantity: INT
+- amount: DECIMAL
+- location_lat: DECIMAL
+- location_lng: DECIMAL
+- metadata: JSON
+- timestamp: TIMESTAMP
+- created_at: TIMESTAMP
+```
+
+#### ChatChannels (Sistema de Comunicação)
+
+```
+- id: INT PRIMARY KEY
+- name: VARCHAR
+- type: ENUM [business_channel, support_channel]
+- warehouse_id: INT FOREIGN KEY (Warehouses.id)
+- client_id: INT FOREIGN KEY (Clients.id)
+- participants: JSON ARRAY (user IDs)
+- created_at: TIMESTAMP
+- updated_at: TIMESTAMP
+```
+
+#### ChatMessages (Mensagens do Chat)
+
+```
+- id: INT PRIMARY KEY
+- channel_id: INT FOREIGN KEY (ChatChannels.id)
+- user_id: INT FOREIGN KEY (Users.id)
+- message: TEXT
+- message_type: ENUM [text, note_approval, payment_confirmation, system]
+- metadata: JSON
+- timestamp: TIMESTAMP
+```
+
 #### NoteItems (Itens da Nota)
+
 ```
 - id: INT PRIMARY KEY
 - note_id: INT FOREIGN KEY (Notes.id)
@@ -279,6 +372,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 ```
 
 #### Sales (Vendas aos Clientes Finais)
+
 ```
 - id: INT PRIMARY KEY
 - note_id: INT FOREIGN KEY (Notes.id)
@@ -296,6 +390,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 ```
 
 #### SaleItems (Itens de Venda)
+
 ```
 - id: INT PRIMARY KEY
 - sale_id: INT FOREIGN KEY (Sales.id)
@@ -308,6 +403,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 ```
 
 #### Payments (Pagamentos)
+
 ```
 - id: INT PRIMARY KEY
 - sale_id: INT FOREIGN KEY (Sales.id)
@@ -322,6 +418,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 ```
 
 #### ImportLog (Registro de Importações)
+
 ```
 - id: INT PRIMARY KEY
 - file_name: VARCHAR
@@ -336,6 +433,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 ```
 
 #### SyncLog (Registro de Sincronização)
+
 ```
 - id: INT PRIMARY KEY
 - driver_id: INT FOREIGN KEY (Drivers.id)
@@ -348,10 +446,12 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 ## 5. API Endpoints
 
 ### 5.1 Autenticação
+
 - `POST /api/auth/login` - Login de usuário
 - `POST /api/auth/refresh` - Renovar token
 
 ### 5.2 Usuários
+
 - `GET /api/users` - Listar usuários
 - `GET /api/users/:id` - Obter usuário
 - `POST /api/users` - Criar usuário
@@ -359,6 +459,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 - `DELETE /api/users/:id` - Remover usuário
 
 ### 5.3 Clientes Empresariais
+
 - `GET /api/clients` - Listar clientes empresariais
 - `GET /api/clients/:id` - Obter cliente empresarial
 - `POST /api/clients` - Criar cliente empresarial
@@ -366,6 +467,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 - `DELETE /api/clients/:id` - Remover cliente empresarial
 
 ### 5.4 Clientes Finais
+
 - `GET /api/end-clients` - Listar clientes finais
 - `GET /api/end-clients/:id` - Obter cliente final
 - `POST /api/end-clients` - Criar cliente final
@@ -373,6 +475,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 - `DELETE /api/end-clients/:id` - Remover cliente final
 
 ### 5.5 Motoristas
+
 - `GET /api/drivers` - Listar motoristas
 - `GET /api/drivers/:id` - Obter motorista
 - `POST /api/drivers` - Criar motorista
@@ -380,6 +483,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 - `DELETE /api/drivers/:id` - Remover motorista
 
 ### 5.6 Galpões
+
 - `GET /api/warehouses` - Listar galpões
 - `GET /api/warehouses/:id` - Obter galpão
 - `POST /api/warehouses` - Criar galpão
@@ -387,6 +491,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 - `DELETE /api/warehouses/:id` - Remover galpão
 
 ### 5.7 Produtos
+
 - `GET /api/products` - Listar produtos
 - `GET /api/products/:id` - Obter produto
 - `POST /api/products` - Criar produto
@@ -396,6 +501,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 - `GET /api/products/by-warehouse/:warehouseId` - Obter produtos por galpão
 
 ### 5.8 Caminhões
+
 - `GET /api/trucks` - Listar caminhões
 - `GET /api/trucks/:id` - Obter caminhão
 - `POST /api/trucks` - Criar caminhão
@@ -404,6 +510,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 - `GET /api/trucks/:id/notes` - Listar notas do caminhão
 
 ### 5.9 Notas (Carregamento)
+
 - `GET /api/notes` - Listar notas
 - `GET /api/notes/:id` - Obter nota
 - `POST /api/notes` - Criar nota
@@ -414,6 +521,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 - `GET /api/notes/template` - Baixar template Excel para importação
 
 ### 5.10 Vendas
+
 - `GET /api/sales` - Listar vendas
 - `GET /api/sales/:id` - Obter venda
 - `POST /api/sales` - Criar venda
@@ -424,6 +532,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 - `GET /api/sales/by-client/:clientId` - Obter vendas por cliente final
 
 ### 5.11 Pagamentos
+
 - `GET /api/payments` - Listar pagamentos
 - `GET /api/payments/:id` - Obter pagamento
 - `POST /api/payments` - Criar pagamento
@@ -432,6 +541,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 - `GET /api/payments/by-sale/:saleId` - Obter pagamentos por venda
 
 ### 5.12 Remarques e Brindes
+
 - `GET /api/remarques` - Listar remarques
 - `GET /api/remarques/:id` - Obter remarque
 - `POST /api/remarques` - Criar remarque
@@ -442,6 +552,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 - `PUT /api/gifts/:id` - Atualizar brinde
 
 ### 5.13 Sincronização
+
 - `POST /api/sync/upload` - Enviar dados locais para o servidor
 - `GET /api/sync/download` - Baixar dados atualizados
 - `POST /api/sync/log` - Registrar log de sincronização
@@ -449,6 +560,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 ## 6. Arquitetura de Sincronização Offline/Online
 
 ### 6.1 Estratégia de Sincronização
+
 1. **Download inicial**: Ao primeiro login, o app baixa dados essenciais (produtos, clientes)
 2. **Operações offline**: Todas as operações são salvas localmente primeiro
 3. **Marcação de status**: Cada operação é marcada como "pending_sync"
@@ -458,12 +570,14 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 7. **Resolução de conflitos**: Utiliza timestamps e regras de negócio
 
 ### 6.2 Resolução de Conflitos
+
 - Prioridade para dados do servidor (em geral)
 - Exceção para vendas/pagamentos: dados locais têm prioridade
 - Registros duplicados identificados por UUID
 - Log detalhado de sincronização para auditoria
 
 ### 6.3 Fluxo de Dados Offline
+
 1. **Caminhão carrega produtos**: Gera nota localmente
 2. **Vendas para clientes finais**: Registradas offline
 3. **Pagamentos**: Registrados offline
@@ -473,6 +587,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 ## 7. Fluxos de Trabalho Principais
 
 ### 7.1 Fluxo de Carregamento do Caminhão
+
 1. Administrador do galpão cadastra produtos disponíveis
 2. Cliente (empresa) cria uma nota de carregamento
 3. Adiciona produtos de diferentes galpões à nota
@@ -481,6 +596,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 6. Sistema registra saída do caminhão com inventário inicial
 
 ### 7.2 Fluxo de Venda
+
 1. Motorista acessa o app em campo (modo offline)
 2. Cadastra novo cliente final ou seleciona cliente existente
 3. Cria nova venda associada à nota de carregamento
@@ -491,6 +607,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 8. Se valor pago >= valor de nota, motorista registra brinde
 
 ### 7.3 Fluxo de Retorno
+
 1. Motorista retorna à base
 2. Sincroniza dados do app com o servidor central
 3. Sistema atualiza estoque com produtos devolvidos
@@ -498,6 +615,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 5. Sistema calcula comissões e métricas de desempenho
 
 ### 7.4 Fluxo de Importação Excel
+
 1. Usuário acessa o painel web
 2. Baixa template Excel para importação
 3. Preenche dados conforme necessário
@@ -509,21 +627,139 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 ## 8. Segurança
 
 ### 8.1 Autenticação e Autorização
+
 - JWT para autenticação stateless
 - Refresh tokens para sessões longas
 - Níveis de acesso por perfil (admin, cliente, motorista, galpão)
 - Senha com hash bcrypt
 
 ### 8.2 Segurança de Dados
+
 - HTTPS para todas as comunicações
 - Dados sensíveis criptografados
 - Validação de entrada em todos os endpoints
 - Rate limiting para prevenir abuso
 
-## 9. Plano de Implementação
+## 9. Plano de Implementação - CRONOGRAMA ACELERADO (3 SEMANAS)
 
-### 9.1 Fase 1: MVP (2-3 meses)
+### 9.1 SEMANA 1: Core System (60 horas)
+
+**Objetivo**: Sistema web funcional com fluxo básico completo
+
+#### Dias 1-2 (20h): Fundação
+
+- ✅ Autenticação já implementada (Firebase Auth)
+- ✅ User Management já implementado
+- 🚧 Sistema de Chat/Intranet básico
+- 🚧 Estrutura de comunicação por contexto
+
+#### Dias 3-4 (20h): Produtos e Estoque
+
+- 🚧 CRUD de Galpões independentes
+- 🚧 CRUD de Produtos com promoções
+- 🚧 Sistema de estoque em tempo real
+- 🚧 Interface atrativa para galpões
+
+#### Dias 5-7 (20h): Notas e Pagamentos
+
+- 🚧 Sistema de NOTAS dinâmicas
+- 🚧 Fluxo de aprovação (Galpão → Client Admin)
+- 🚧 Sistema de pagamento PIX + confirmação
+- 🚧 Status tracking completo
+
+### 9.2 SEMANA 2: Mobile + Advanced Features (60 horas)
+
+**Objetivo**: App mobile funcional + features avançadas
+
+#### Dias 8-9 (20h): Mobile App Core
+
+- 🚧 App React Native/Expo básico
+- 🚧 Login e navegação mobile
+- 🚧 Visualização de NOTAS e produtos
+- 🚧 Interface de vendas offline
+
+#### Dias 10-11 (20h): Sincronização e Real-time
+
+- 🚧 SQLite para dados offline
+- 🚧 Sincronização automática
+- 🚧 Dashboard tempo real (feed de atividades)
+- 🚧 Notificações push
+
+#### Dias 12-14 (20h): Geolocalização e Performance
+
+- 🚧 Tracking de motoristas em tempo real
+- 🚧 Métricas de performance automáticas
+- 🚧 Otimização de queries e cache
+- 🚧 Sistema de batch updates
+
+### 9.3 SEMANA 3: Polish + Production (60 horas)
+
+**Objetivo**: App pronto para lançamento
+
+#### Dias 15-16 (20h): Testing e Bug Fixes
+
+- 🚧 Testes end-to-end completos
+- 🚧 Correção de bugs críticos
+- 🚧 Testes de sincronização offline/online
+- 🚧 Validação com dados reais
+
+#### Dias 17-18 (20h): UI/UX e Mobile Store
+
+- 🚧 Polish da interface (web e mobile)
+- 🚧 Preparação para Google Play/App Store
+- 🚧 Otimização de performance final
+- 🚧 Documentação de usuário
+
+#### Dias 19-21 (20h): Deploy e Lançamento
+
+- 🚧 Deploy final em produção
+- 🚧 Configuração de monitoramento
+- 🚧 Treinamento de usuários piloto
+- 🚧 Documentação técnica completa
+
+### 9.4 CRONOGRAMA DIÁRIO RECOMENDADO
+
+**Total: 180 horas em 21 dias = 8.5h/dia efetivas**
+
+#### Rotina Sugerida (10-12h/dia incluindo breaks):
+
+- **06:00-10:00**: Desenvolvimento pesado (4h)
+- **10:00-10:30**: Break
+- **10:30-14:30**: Features e integração (4h)
+- **14:30-15:30**: Almoço
+- **15:30-19:30**: Testing e polish (4h)
+- **19:30-20:30**: Jantar
+- **20:30-22:00**: Planning e documentação (1.5h)
+
+#### Métricas de Sucesso:
+
+- **Semana 1**: Sistema web completo funcionando
+- **Semana 2**: App mobile sincronizando com web
+- **Semana 3**: Produto pronto para primeiros clientes
+
+### 9.5 RISCOS E MITIGAÇÕES
+
+| Risco                              | Probabilidade | Impacto | Mitigação                    |
+| ---------------------------------- | ------------- | ------- | ---------------------------- |
+| Complexidade sincronização offline | Alta          | Alto    | Começar simples, iterar      |
+| Performance com muitos usuários    | Média         | Alto    | Cache strategy desde início  |
+| Bugs de integração mobile/web      | Alta          | Médio   | Testes contínuos             |
+| Burnout por ritmo intenso          | Alta          | Alto    | Breaks obrigatórios, 8h sono |
+
+### 9.6 DEFINIÇÃO DE PRONTO ACELERADA
+
+Para cada feature ser considerada completa:
+
+1. ✅ Funcionalidade implementada e testada
+2. ✅ Integração web/mobile funcionando
+3. ✅ Performance aceitável (< 2s loading)
+4. ✅ Tratamento básico de erros
+5. ✅ Documentação mínima
+
+**ESTE CRONOGRAMA É AGRESSIVO MAS FACTÍVEL COM DEDICAÇÃO TOTAL!** 🚀
+
 1. **Sprint 1**: Setup do projeto e infraestrutura básica
+
    - Configuração de repositórios
    - Configuração do ambiente de desenvolvimento
    - Estruturação inicial de banco de dados
@@ -531,24 +767,28 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
    - **Implementação da importação via Excel**
 
 2. **Sprint 2**: Implementação do backend (APIs core)
+
    - Autenticação e usuários
    - APIs de produtos e clientes
    - APIs de notas e vendas
    - APIs de remarques e brindes
 
 3. **Sprint 3**: Desenvolvimento do app mobile (catálogo, vendas)
+
    - Tela de login e autenticação
    - Catálogo de produtos
    - Registro de vendas
    - **Visualização de notas e inventário**
 
 4. **Sprint 4**: Desenvolvimento do painel web básico
+
    - Dashboard principal
    - Gerenciamento de produtos
    - Gerenciamento de vendedores
    - **Upload e processamento de planilhas Excel**
 
 5. **Sprint 5**: Sincronização offline/online básica
+
    - Armazenamento local SQLite
    - Sincronização de dados básica
    - Resolução de conflitos
@@ -559,6 +799,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
    - Ajustes finais
 
 ### 9.2 Fase 2: Expansão (2-3 meses)
+
 1. Rotas e planejamento de visitas
 2. Relatórios avançados
 3. Dashboard com métricas de performance
@@ -568,6 +809,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 7. **Templates personalizados para importação de Excel**
 
 ### 9.3 Fase 3: Refinamento (1-2 meses)
+
 1. Otimização de performance
 2. UX/UI refinado
 3. Notificações e alertas
@@ -580,6 +822,7 @@ O sistema possui uma hierarquia de usuários com diferentes níveis de acesso:
 Siga este fluxo para garantir que suas mudanças sejam aplicadas corretamente do desenvolvimento local até a produção no Firebase Hosting:
 
 ### 1. Desenvolvimento Local
+
 - Crie uma branch para sua feature/correção:
   ```bash
   git checkout -b feat/nome-da-feature
@@ -593,6 +836,7 @@ Siga este fluxo para garantir que suas mudanças sejam aplicadas corretamente do
 - Verifique se tudo funciona em `http://localhost:3000`.
 
 ### 2. Versionamento e Pull Request (PR)
+
 - Adicione e faça commit das mudanças:
   ```bash
   git add .
@@ -607,9 +851,11 @@ Siga este fluxo para garantir que suas mudanças sejam aplicadas corretamente do
 - Faça o merge do PR na `main`.
 
 ### 3. Deploy Automático com GitHub Actions
+
 A partir de agora, o deploy para o Firebase Hosting é feito automaticamente após o merge na branch `main`!
 
 #### Como funciona o workflow:
+
 - O arquivo `.github/workflows/firebase-hosting.yml` define o processo automatizado.
 - Sempre que houver um push na branch `main`, o GitHub Actions:
   1. Faz checkout do código
@@ -618,6 +864,7 @@ A partir de agora, o deploy para o Firebase Hosting é feito automaticamente ap�
   4. Faz o deploy para o Firebase Hosting usando as credenciais seguras
 
 #### Como configurar o segredo do Firebase:
+
 1. No [Firebase Console](https://console.firebase.google.com/), acesse seu projeto.
 2. Vá em **Configurações do projeto > Contas de serviço**.
 3. Clique em **Gerar nova chave privada** e baixe o arquivo JSON.
@@ -633,20 +880,22 @@ A partir de agora, o deploy para o Firebase Hosting é feito automaticamente ap�
 > **Atenção:** O segredo deve se chamar exatamente `FIREBASE_SERVICE_ACCOUNT` (apenas letras maiúsculas e underscores, sem espaços ou traços).
 
 #### O que acontece agora?
+
 - Após o merge na `main`, o deploy é feito automaticamente.
 - Você pode acompanhar o status do deploy na aba **Actions** do GitHub.
 - Não é mais necessário rodar `firebase deploy` manualmente, a não ser que queira forçar um deploy fora do fluxo padrão.
 
 ### 4. Verifique em Produção
+
 - Acesse seu app em `https://rifapro-23e19.web.app/` para garantir que as mudanças estão online.
 
 ---
 
 **Dica:** Se precisar rodar o deploy manualmente, ainda pode usar:
+
 ```bash
 firebase deploy --only hosting
 ```
-
 
 # CI/CD com GitHub Actions e Firebase Hosting
 
@@ -659,6 +908,7 @@ Neste projeto, implementamos uma pipeline de CI/CD (Integração Contínua e Ent
 ## Etapas do CI/CD Implementado
 
 ### 1. **Configuração do Workflow no GitHub Actions**
+
 - Criamos um arquivo de workflow em `.github/workflows/firebase-hosting.yml`.
 - O workflow é disparado automaticamente a cada push na branch `main`.
 - Etapas principais:
@@ -668,15 +918,18 @@ Neste projeto, implementamos uma pipeline de CI/CD (Integração Contínua e Ent
   4. **Deploy no Firebase Hosting**: Usa a action oficial do Firebase para publicar o build.
 
 ### 2. **Configuração de Secrets (Credenciais Seguras)**
+
 - O deploy exige uma chave de serviço do Firebase (Service Account).
 - No GitHub, adicionamos o segredo `FIREBASE_SERVICE_ACCOUNT` em **Settings > Secrets and variables > Actions**.
 - O segredo é lido pelo workflow e usado para autenticar o deploy.
 
 ### 3. **Deploy Automático**
+
 - Após o merge na branch `main`, o workflow executa todas as etapas e publica o app no Firebase Hosting.
 - O status do deploy pode ser acompanhado na aba **Actions** do GitHub.
 
 ### 4. **Boas Práticas Adotadas**
+
 - **Branch principal protegida**: Só faz deploy após revisão e merge.
 - **Secrets nunca expostos no código**: Sempre via GitHub Secrets.
 - **Build limpo**: Uso de `npm ci` para evitar dependências corrompidas.
@@ -685,6 +938,7 @@ Neste projeto, implementamos uma pipeline de CI/CD (Integração Contínua e Ent
 ---
 
 ## Exemplo de Workflow (`firebase-hosting.yml`)
+
 ```yaml
 name: Deploy to Firebase Hosting
 on:
@@ -715,6 +969,7 @@ jobs:
 ---
 
 ## Como funciona na prática?
+
 1. Você faz um commit e push para a branch `main`.
 2. O GitHub Actions executa o workflow:
    - Instala dependências
@@ -725,6 +980,7 @@ jobs:
 ---
 
 ## Como configurar do zero (resumido)
+
 1. Gere uma chave de serviço no Firebase Console (Configurações > Contas de serviço).
 2. Adicione o conteúdo do JSON como segredo `FIREBASE_SERVICE_ACCOUNT` no GitHub.
 3. Crie o arquivo `.github/workflows/firebase-hosting.yml` conforme o exemplo acima.
@@ -733,6 +989,7 @@ jobs:
 ---
 
 ## Recomendações para Masterizar CI/CD e GitHub Actions
+
 - **Documentação oficial do GitHub Actions:**
   - https://docs.github.com/en/actions
 - **Documentação do Firebase Hosting + GitHub Actions:**
@@ -748,6 +1005,7 @@ jobs:
 ---
 
 ## Dicas Avançadas
+
 - Use ambientes de preview para Pull Requests (deploys temporários).
 - Adicione etapas de lint e testes automatizados antes do deploy.
 - Configure notificações de deploy (Slack, Discord, email).
@@ -759,11 +1017,13 @@ jobs:
 **Com esse setup, você está pronto para entregar software de forma ágil, segura e profissional!**
 
 ## 🔒 Autenticação Centralizada
+
 A autenticação de usuários (web e mobile) é feita via Firebase Authentication, garantindo segurança e integração entre plataformas.
 
 ## 🚀 CI/CD Automatizado
+
 O projeto utiliza GitHub Actions para build e deploy automáticos do frontend (Next.js) no Firebase Hosting. O deploy é disparado sempre que há merge na branch `main`, garantindo agilidade e segurança.
 
 ## 📱 App Mobile
-O projeto conta com um app mobile desenvolvido em React Native com Expo, utilizando o mesmo backend Firebase para autenticação e dados. O repositório segue o padrão monorepo, com as pastas `frontend` (web) e `mobile` (mobile).
 
+O projeto conta com um app mobile desenvolvido em React Native com Expo, utilizando o mesmo backend Firebase para autenticação e dados. O repositório segue o padrão monorepo, com as pastas `frontend` (web) e `mobile` (mobile).
