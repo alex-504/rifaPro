@@ -17,7 +17,7 @@ function KpiCard({ title, value, icon, loading }: {
     <div className="bg-white rounded-lg shadow p-6 flex items-center gap-4">
       {icon && <div className="text-3xl text-blue-600">{icon}</div>}
       <div>
-        <div className="text-gray-500 text-sm">{title}</div>
+        <div className="text-gray-700 text-sm">{title}</div>
         <div className="text-2xl font-bold">
           {loading ? (
             <div className="animate-pulse bg-gray-200 h-8 w-16 rounded"></div>
@@ -31,7 +31,7 @@ function KpiCard({ title, value, icon, loading }: {
 }
 
 export default function DashboardPage() {
-  const { userName } = useAuth();
+  const { userName, role } = useAuth();
   const [stats, setStats] = useState({
     users: 0,
     clients: 0,
@@ -65,7 +65,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={[ROLES.APP_ADMIN, ROLES.CLIENT_ADMIN]}>
+    <ProtectedRoute allowedRoles={[ROLES.APP_ADMIN, ROLES.CLIENT_ADMIN, ROLES.WAREHOUSE_ADMIN]}>
       <div className="min-h-screen flex bg-gray-100">
         <Sidebar />
 
@@ -86,12 +86,25 @@ export default function DashboardPage() {
             </p>
           </header>
 
-          {/* KPIs */}
+          {/* KPIs - Different for each role */}
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <KpiCard title="Usuários" value={stats.users} icon="👤" loading={loading} />
-            <KpiCard title="Clientes" value={stats.clients} icon="🏢" loading={loading} />
-            <KpiCard title="Galpões" value={stats.warehouses} icon="🏭" loading={loading} />
-            <KpiCard title="Produtos" value={stats.products} icon="📦" loading={loading} />
+            {role === ROLES.WAREHOUSE_ADMIN ? (
+              // Warehouse Admin sees only relevant metrics
+              <>
+                <KpiCard title="Meus Produtos" value={stats.products} icon="📦" loading={loading} />
+                <KpiCard title="Estoque Total" value="0" icon="📊" loading={loading} />
+                <KpiCard title="Notas Pendentes" value="0" icon="📋" loading={loading} />
+                <KpiCard title="Vendas do Mês" value="R$ 0" icon="💰" loading={loading} />
+              </>
+            ) : (
+              // App Admin and Client Admin see full metrics
+              <>
+                <KpiCard title="Usuários" value={stats.users} icon="👤" loading={loading} />
+                <KpiCard title="Clientes" value={stats.clients} icon="🏢" loading={loading} />
+                <KpiCard title="Galpões" value={stats.warehouses} icon="🏭" loading={loading} />
+                <KpiCard title="Produtos" value={stats.products} icon="📦" loading={loading} />
+              </>
+            )}
           </section>
 
           {/* Quick Actions */}
@@ -99,30 +112,57 @@ export default function DashboardPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-bold mb-4 text-gray-800">Ações Rápidas</h2>
               <div className="space-y-3">
-                <a href="/users" className="block p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">👤</span>
-                    <span className="font-medium">Gerenciar Usuários</span>
-                  </div>
-                </a>
-                <a href="/products" className="block p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">📦</span>
-                    <span className="font-medium">Gerenciar Produtos</span>
-                  </div>
-                </a>
-                <a href="/notes" className="block p-3 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">📋</span>
-                    <span className="font-medium">Criar Nova Nota</span>
-                  </div>
-                </a>
+                {role === ROLES.WAREHOUSE_ADMIN ? (
+                  // Warehouse Admin specific actions
+                  <>
+                    <a href="/products" className="block p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">📦</span>
+                        <span className="font-medium">Gerenciar Meus Produtos</span>
+                      </div>
+                    </a>
+                    <a href="/warehouses" className="block p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">🏭</span>
+                        <span className="font-medium">Ver Galpões</span>
+                      </div>
+                    </a>
+                    <a href="/notes" className="block p-3 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">📋</span>
+                        <span className="font-medium">Aprovar Notas</span>
+                      </div>
+                    </a>
+                  </>
+                ) : (
+                  // App Admin and Client Admin actions
+                  <>
+                    <a href="/users" className="block p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">👤</span>
+                        <span className="font-medium">Gerenciar Usuários</span>
+                      </div>
+                    </a>
+                    <a href="/products" className="block p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">📦</span>
+                        <span className="font-medium">Gerenciar Produtos</span>
+                      </div>
+                    </a>
+                    <a href="/notes" className="block p-3 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">📋</span>
+                        <span className="font-medium">Criar Nova Nota</span>
+                      </div>
+                    </a>
+                  </>
+                )}
               </div>
             </div>
 
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-bold mb-4 text-gray-800">Atividade Recente</h2>
-              <div className="text-gray-500 text-center py-8">
+              <div className="text-gray-700 text-center py-8">
                 <p>Nenhuma atividade recente</p>
                 <p className="text-sm mt-2">As atividades aparecerão aqui conforme você usar o sistema</p>
               </div>

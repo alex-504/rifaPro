@@ -19,7 +19,7 @@ const navItems: NavItem[] = [
   { name: 'Dashboard', href: '/dashboard', icon: '📊', allowedRoles: [ROLES.APP_ADMIN, ROLES.CLIENT_ADMIN] },
   { name: 'Usuários', href: '/users', icon: '👤', allowedRoles: [ROLES.APP_ADMIN] },
   { name: 'Clientes', href: '/clients', icon: '🏢', allowedRoles: [ROLES.APP_ADMIN] },
-  { name: 'Galpões', href: '/warehouses', icon: '🏭', allowedRoles: [ROLES.APP_ADMIN, ROLES.CLIENT_ADMIN] },
+  { name: 'Galpões', href: '/warehouses', icon: '🏭', allowedRoles: [ROLES.APP_ADMIN, ROLES.CLIENT_ADMIN, ROLES.WAREHOUSE_ADMIN] },
   { name: 'Produtos', href: '/products', icon: '📦', allowedRoles: [ROLES.APP_ADMIN, ROLES.CLIENT_ADMIN, ROLES.WAREHOUSE_ADMIN] },
   { name: 'Motoristas', href: '/drivers', icon: '🚛', allowedRoles: [ROLES.APP_ADMIN, ROLES.CLIENT_ADMIN] },
   { name: 'Caminhões', href: '/trucks', icon: '🚚', allowedRoles: [ROLES.APP_ADMIN, ROLES.CLIENT_ADMIN] },
@@ -84,7 +84,7 @@ export default function Sidebar() {
             <p className="text-sm font-semibold text-gray-900 truncate">
               {userName || user?.email?.split('@')[0]}
             </p>
-            <p className="text-xs text-gray-500 capitalize">
+            <p className="text-xs text-gray-700 capitalize">
               {role === 'app_admin' ? 'Admin do App' : 
                role === 'client_admin' ? 'Admin do Cliente' :
                role === 'driver' ? 'Motorista' :

@@ -3,20 +3,26 @@ import * as admin from "firebase-admin";
 
 admin.initializeApp();
 
-// Função de teste simples
-export const helloWorld = functions.https.onCall(async () => ({
-  message: "Hello World!",
-}));
+// Interface para os dados de criação de usuário
+interface CreateUserData {
+  email: string;
+  password: string;
+  name: string;
+  role: string;
+  clientId?: string;
+}
 
 // Função para criar usuários sem afetar a sessão do admin
-export const createUser = functions.https.onCall(async (data, context) => {
+export const createUser = functions.https.onCall(async (request, response) => {
+  const data = request.data as CreateUserData;
+  
   // Verificar se o usuário está autenticado
-  if (!context.auth) {
+  if (!request.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'Usuário não autenticado');
   }
 
   // Verificar se o usuário tem permissão (admin ou client_admin)
-  const callerUid = context.auth.uid;
+  const callerUid = request.auth.uid;
   const callerDoc = await admin.firestore().collection('users').doc(callerUid).get();
   
   if (!callerDoc.exists) {

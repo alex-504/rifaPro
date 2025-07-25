@@ -1,15 +1,15 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
+import {
+  collection,
+  doc,
+  addDoc,
   setDoc,
-  updateDoc, 
-  deleteDoc, 
-  getDoc, 
-  getDocs, 
-  query, 
-  where, 
-  Timestamp 
+  updateDoc,
+  deleteDoc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+  Timestamp
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { Role } from '@/constants/roles';
@@ -43,11 +43,17 @@ export interface Client {
 export interface Warehouse {
   id: string;
   name: string;
+  description?: string;
   address: string;
   city: string;
   state: string;
-  clientId: string;
+  phone?: string;
+  email?: string;
+  managerName: string; // Responsável pelo galpão
+  ownerId: string; // ID do usuário dono do galpão (warehouse_admin)
+  ownerName: string; // Nome do dono para facilitar exibição
   status: 'active' | 'inactive';
+  createdBy: string; // Quem criou (app_admin)
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -63,6 +69,8 @@ export interface Product {
   weight: number;
   imageUrl?: string;
   warehouseId: string;
+  status: 'active' | 'inactive';
+  createdBy: string; // Quem criou o produto
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -157,10 +165,18 @@ export class FirestoreService {
     return docRef.id;
   }
 
-  static async getWarehousesByClient(clientId: string): Promise<Warehouse[]> {
-    const q = query(collection(db, 'warehouses'), where('clientId', '==', clientId));
-    const querySnapshot = await getDocs(q);
+  static async getAllWarehouses(): Promise<Warehouse[]> {
+    const querySnapshot = await getDocs(collection(db, 'warehouses'));
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Warehouse));
+  }
+
+  static async getWarehouse(warehouseId: string): Promise<Warehouse | null> {
+    const docRef = doc(db, 'warehouses', warehouseId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() } as Warehouse;
+    }
+    return null;
   }
 
   // Products
@@ -171,6 +187,11 @@ export class FirestoreService {
       updatedAt: Timestamp.now(),
     });
     return docRef.id;
+  }
+
+  static async getAllProducts(): Promise<Product[]> {
+    const querySnapshot = await getDocs(collection(db, 'products'));
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
   }
 
   static async getProductsByWarehouse(warehouseId: string): Promise<Product[]> {
@@ -192,5 +213,45 @@ export class FirestoreService {
   static async deleteDocument(collectionName: string, docId: string) {
     const docRef = doc(db, collectionName, docId);
     await deleteDoc(docRef);
+  }
+
+  // Warehouse-specific functions
+  static async updateWarehouseStatus(warehouseId: string, status: 'active' | 'inactive') {
+    // Update warehouse status
+    await this.updateDocument('warehouses', warehouseId, { status });
+
+    // If deactivating warehouse, deactivate all its products
+    if (status === 'inactive') {
+      const products = await this.getProductsByWarehouse(warehouseId);
+      const updatePromises = products.map(product =>
+        this.updateDocument('products', product.id, { status: 'inactive' })
+      );
+      await Promise.all(updatePromises);
+    }
+  }
+
+  // Get users by role (for warehouse owner selection)
+  static async getUsersByRole(role: Role): Promise<User[]> {
+    const q = query(collection(db, 'users'), where('role', '==', role));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User));
+  }
+
+  // Get warehouses by owner
+  static async getWarehousesByOwner(ownerId: string): Promise<Warehouse[]> {
+    const q = query(collection(db, 'warehouses'), where('ownerId', '==', ownerId));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Warehouse));
+  }
+
+  // Get active products by warehouse (for public viewing)
+  static async getActiveProductsByWarehouse(warehouseId: string): Promise<Product[]> {
+    const q = query(
+      collection(db, 'products'),
+      where('warehouseId', '==', warehouseId),
+      where('status', '==', 'active')
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
   }
 }

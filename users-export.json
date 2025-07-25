@@ -1,0 +1,47 @@
+{
+  "export_info": {
+    "generated_at": "2025-01-25T12:00:00Z",
+    "description": "Lista de usuários do sistema RifaPro",
+    "total_users": 0,
+    "roles_summary": {
+      "app_admin": 0,
+      "client_admin": 0,
+      "warehouse_admin": 0,
+      "driver": 0
+    }
+  },
+  "users": [
+    {
+      "id": "example-user-id",
+      "name": "Usuário Exemplo",
+      "email": "exemplo@email.com",
+      "role": "app_admin",
+      "status": "active",
+      "needsPasswordSetup": false,
+      "clientId": null,
+      "createdAt": "2025-01-25T10:00:00Z",
+      "updatedAt": "2025-01-25T10:00:00Z",
+      "note": "Este é um exemplo - substitua pelos dados reais do Firestore"
+    }
+  ],
+  "instructions": {
+    "how_to_update": [
+      "1. Acesse o console do Firebase",
+      "2. Vá para Firestore Database",
+      "3. Navegue para a coleção 'users'",
+      "4. Exporte os dados ou copie manualmente",
+      "5. Substitua o array 'users' acima com os dados reais"
+    ],
+    "fields_explanation": {
+      "id": "ID único do usuário no Firestore",
+      "name": "Nome completo do usuário",
+      "email": "Email de login",
+      "role": "Papel no sistema (app_admin, client_admin, warehouse_admin, driver)",
+      "status": "Status da conta (active, inactive, pending)",
+      "needsPasswordSetup": "Se o usuário precisa configurar senha",
+      "clientId": "ID do cliente (para drivers e warehouse_admins)",
+      "createdAt": "Data de criação",
+      "updatedAt": "Data da última atualização"
+    }
+  }
+}

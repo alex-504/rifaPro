@@ -53,21 +53,48 @@ export default function WelcomePage() {
 
             {role === ROLES.WAREHOUSE_ADMIN && (
               <div className="bg-green-50 rounded-lg p-4">
-                <h3 className="font-semibold text-green-800 mb-2">Como Admin do Galpão, você pode:</h3>
-                <ul className="text-sm text-green-700 space-y-1">
-                  <li>• Gerenciar produtos do galpão</li>
-                  <li>• Controlar estoque</li>
-                  <li>• Criar notas de carregamento</li>
-                  <li>• Acompanhar movimentações</li>
+                <h3 className="font-semibold text-green-800 mb-3">Como Admin do Galpão, você pode:</h3>
+                <ul className="text-sm text-green-700 space-y-2">
+                  <li>• 📦 Criar e editar produtos do seu galpão</li>
+                  <li>• 📊 Controlar estoque e preços</li>
+                  <li>• 📋 Aprovar notas dos caminhoneiros</li>
+                  <li>• 👀 Ver produtos de outros galpões</li>
+                  <li>• 📈 Acompanhar relatórios do galpão</li>
                 </ul>
+                
+                <div className="mt-4 pt-3 border-t border-green-200">
+                  <a
+                    href="/dashboard"
+                    className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-semibold text-center block"
+                  >
+                    🚀 Ir para Dashboard
+                  </a>
+                  
+                  <div className="flex gap-2 mt-3">
+                    <a
+                      href="/products"
+                      className="flex-1 bg-purple-100 text-purple-700 py-2 px-3 rounded-lg hover:bg-purple-200 transition-colors text-sm font-medium text-center"
+                    >
+                      📦 Meus Produtos
+                    </a>
+                    <a
+                      href="/warehouses"
+                      className="flex-1 bg-blue-100 text-blue-700 py-2 px-3 rounded-lg hover:bg-blue-200 transition-colors text-sm font-medium text-center"
+                    >
+                      👀 Ver Outros Galpões
+                    </a>
+                  </div>
+                </div>
               </div>
             )}
           </div>
 
           <div className="mt-6 pt-6 border-t">
-            <p className="text-xs text-gray-500 mb-4">
+            <p className="text-xs text-gray-700 mb-4">
               O app mobile e funcionalidades específicas estarão disponíveis em breve.
             </p>
+            
+
             
             <button
               onClick={() => window.location.href = '/login'}
