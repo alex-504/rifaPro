@@ -17,6 +17,7 @@ export default function ProductsPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [creating, setCreating] = useState(false);
   const [selectedWarehouse, setSelectedWarehouse] = useState<string>('all');
+  const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -230,6 +231,30 @@ export default function ProductsPage() {
 
             </div>
             <div className="flex gap-4 items-center">
+              {/* View Toggle */}
+              <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('cards')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    viewMode === 'cards'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  📋 Cards
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    viewMode === 'list'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  📝 Lista
+                </button>
+              </div>
+
               {/* Warehouse Filter - Only show if app admin or multiple warehouses */}
               {(role !== ROLES.WAREHOUSE_ADMIN || warehouses.length > 1) && (
                 <select
@@ -456,114 +481,230 @@ export default function ProductsPage() {
             </div>
           )}
 
-          {/* Products Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
-                {product.imageUrl && (
-                  <div className="h-48 bg-gray-200 relative">
-                    <Image 
-                      src={product.imageUrl} 
-                      alt={product.name}
-                      fill
-                      className="object-cover"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                      unoptimized
-                    />
-                  </div>
-                )}
-                
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-xl font-bold text-gray-800">{product.name}</h3>
-                    <div className="flex flex-col gap-1">
-                      <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                        {product.category}
-                      </span>
-                      <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
-                        product.status === 'active' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {product.status === 'active' ? '🟢 Ativo' : '🔴 Inativo'}
-                      </span>
-                    </div>
-                  </div>
-
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
-
-                  <div className="space-y-2 text-sm mb-4">
-                    <div className="flex justify-between">
-                      <span className="text-gray-700">🏭 Galpão:</span>
-                      <span className="font-medium">{getWarehouseName(product.warehouseId)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-700">⚖️ Peso:</span>
-                      <span>{product.weight}kg</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-700">📦 Estoque:</span>
-                      <span className={product.stock > 0 ? 'text-green-600' : 'text-red-600'}>
-                        {product.stock} unidades
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-4 mb-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-sm text-gray-700">Preço de Venda</p>
-                        <p className="text-xl font-bold text-green-600">
-                          R$ {product.price.toFixed(2)}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-700">Custo</p>
-                        <p className="text-lg font-semibold text-gray-700">
-                          R$ {product.costPrice.toFixed(2)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-700">Margem de Lucro</p>
-                      <p className="text-lg font-semibold text-blue-600">
-                        {product.price > 0 ? (((product.price - product.costPrice) / product.price) * 100).toFixed(1) : 0}%
-                      </p>
-                    </div>
-                  </div>
-
-                  {(role === ROLES.APP_ADMIN || role === ROLES.WAREHOUSE_ADMIN) && (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleEdit(product)}
-                        className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium"
-                      >
-                        ✏️ Editar
-                      </button>
-                      <button
-                        onClick={() => handleStatusToggle(product)}
-                        className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium ${
-                          product.status === 'active'
-                            ? 'bg-orange-600 text-white hover:bg-orange-700'
-                            : 'bg-green-600 text-white hover:bg-green-700'
-                        }`}
-                      >
-                        {product.status === 'active' ? '⏸️ Desativar' : '▶️ Ativar'}
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product)}
-                        className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 text-sm font-medium"
-                      >
-                        🗑️
-                      </button>
+          {/* Products Display */}
+          {viewMode === 'cards' ? (
+            // Cards View
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProducts.map((product) => (
+                <div key={product.id} className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+                  {product.imageUrl && (
+                    <div className="h-48 bg-gray-200 relative">
+                      <Image 
+                        src={product.imageUrl} 
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                        unoptimized
+                      />
                     </div>
                   )}
+                  
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <h3 className="text-xl font-bold text-gray-800">{product.name}</h3>
+                      <div className="flex flex-col gap-1">
+                        <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                          {product.category}
+                        </span>
+                        <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
+                          product.status === 'active' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {product.status === 'active' ? '🟢 Ativo' : '🔴 Inativo'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
+
+                    <div className="space-y-2 text-sm mb-4">
+                      <div className="flex justify-between">
+                        <span className="text-gray-700">🏭 Galpão:</span>
+                        <span className="font-medium">{getWarehouseName(product.warehouseId)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-700">⚖️ Peso:</span>
+                        <span>{product.weight}kg</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-700">📦 Estoque:</span>
+                        <span className={product.stock > 0 ? 'text-green-600' : 'text-red-600'}>
+                          {product.stock} unidades
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-4 mb-4">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="text-sm text-gray-700">Preço de Venda</p>
+                          <p className="text-xl font-bold text-green-600">
+                            R$ {product.price.toFixed(2)}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-gray-700">Custo</p>
+                          <p className="text-lg font-semibold text-gray-700">
+                            R$ {product.costPrice.toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-2">
+                        <p className="text-sm text-gray-700">Margem de Lucro</p>
+                        <p className="text-lg font-semibold text-blue-600">
+                          {product.price > 0 ? (((product.price - product.costPrice) / product.price) * 100).toFixed(1) : 0}%
+                        </p>
+                      </div>
+                    </div>
+
+                    {(role === ROLES.APP_ADMIN || role === ROLES.WAREHOUSE_ADMIN) && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEdit(product)}
+                          className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium"
+                        >
+                          ✏️ Editar
+                        </button>
+                        <button
+                          onClick={() => handleStatusToggle(product)}
+                          className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium ${
+                            product.status === 'active'
+                              ? 'bg-orange-600 text-white hover:bg-orange-700'
+                              : 'bg-green-600 text-white hover:bg-green-700'
+                          }`}
+                        >
+                          {product.status === 'active' ? '⏸️ Desativar' : '▶️ Ativar'}
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product)}
+                          className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 text-sm font-medium"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            // List View
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Produto
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Categoria
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Galpão
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Estoque
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Preço
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      {(role === ROLES.APP_ADMIN || role === ROLES.WAREHOUSE_ADMIN) && (
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Ações
+                        </th>
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredProducts.map((product) => (
+                      <tr key={product.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            {product.imageUrl && (
+                              <div className="flex-shrink-0 h-10 w-10 mr-3">
+                                <Image
+                                  src={product.imageUrl}
+                                  alt={product.name}
+                                  width={40}
+                                  height={40}
+                                  className="h-10 w-10 rounded-lg object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                  unoptimized
+                                />
+                              </div>
+                            )}
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                              <div className="text-sm text-gray-500 line-clamp-1">{product.description}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                            {product.category}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {getWarehouseName(product.warehouseId)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{product.stock} unidades</div>
+                          <div className="text-sm text-gray-500">{product.weight}kg</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-green-600">R$ {product.price.toFixed(2)}</div>
+                          <div className="text-sm text-gray-500">Custo: R$ {product.costPrice.toFixed(2)}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            product.status === 'active' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {product.status === 'active' ? '🟢 Ativo' : '🔴 Inativo'}
+                          </span>
+                        </td>
+                        {(role === ROLES.APP_ADMIN || role === ROLES.WAREHOUSE_ADMIN) && (
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleEdit(product)}
+                                className="text-blue-600 hover:text-blue-900"
+                              >
+                                ✏️
+                              </button>
+                              <button
+                                onClick={() => handleStatusToggle(product)}
+                                className={product.status === 'active' ? 'text-orange-600 hover:text-orange-900' : 'text-green-600 hover:text-green-900'}
+                              >
+                                {product.status === 'active' ? '⏸️' : '▶️'}
+                              </button>
+                              <button
+                                onClick={() => handleDelete(product)}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
 
           {filteredProducts.length === 0 && (
             <div className="text-center py-12">
