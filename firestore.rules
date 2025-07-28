@@ -41,8 +41,9 @@ service cloud.firestore {
       // Criação: admins podem criar usuários OU usuário pode criar seu próprio documento durante ativação
       allow create: if isAdmin() || (isAuthenticated() && request.auth.uid == userId);
       
-      // Atualização: usuário pode atualizar próprios dados, admins podem atualizar todos
-      allow update: if isOwner(userId) || isAdmin();
+      // Atualização: usuário pode atualizar próprios dados, admins podem atualizar todos, 
+      // ou usuários autenticados podem ativar contas pending (para onboarding)
+      allow update: if isOwner(userId) || isAdmin() || (isAuthenticated() && resource.data.status == 'pending');
       
       // Exclusão: admins podem deletar qualquer usuário, usuários podem deletar próprios documentos pending
       allow delete: if isAdmin() || (isAuthenticated() && resource.data.status == 'pending');
@@ -50,7 +51,15 @@ service cloud.firestore {
     
     // Regras para outras coleções
     match /clients/{clientId} {
-      allow read, write: if isAdmin();
+      // Leitura: admins podem ler todos, client_admin pode ler próprio cliente
+      allow read: if isAdmin() || (isAuthenticated() && 
+                                  get(/databases/$(database)/documents/users/$(request.auth.uid)).data.clientId == clientId);
+      // Lista: admins podem listar todos
+      allow list: if isAdmin();
+      // Criação: admins podem criar OU usuários autenticados podem criar durante onboarding
+      allow create: if isAdmin() || isAuthenticated();
+      // Atualização/Exclusão: apenas admins
+      allow update, delete: if isAdmin();
     }
     
     match /warehouses/{warehouseId} {
@@ -67,6 +76,22 @@ service cloud.firestore {
       allow read, list: if isAuthenticated();
       // Escrita: admins e warehouse admins podem criar/editar produtos
       allow write: if isAdminOrWarehouseAdmin();
+    }
+    
+    match /drivers/{driverId} {
+      // Leitura: admins podem ler todos, drivers podem ler próprios dados
+      allow read, list: if isAdmin() || (isAuthenticated() && 
+                                        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'driver');
+      // Escrita: apenas admins podem criar/editar/deletar motoristas
+      allow write: if isAdmin();
+    }
+    
+    match /trucks/{truckId} {
+      // Leitura: admins e drivers podem ler
+      allow read, list: if isAdmin() || (isAuthenticated() && 
+                                        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'driver');
+      // Escrita: apenas admins podem criar/editar/deletar caminhões
+      allow write: if isAdmin();
     }
     
     match /notes/{noteId} {
