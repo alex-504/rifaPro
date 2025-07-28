@@ -39,25 +39,34 @@ export default function ProductsPage() {
           FirestoreService.getAllProducts(),
           FirestoreService.getWarehousesByOwner(user?.uid || '')
         ]);
-        
+
         const activeUserWarehouses = userWarehouses.filter(w => w.status === 'active');
         const userWarehouseIds = activeUserWarehouses.map(w => w.id);
         const filteredProducts = productsData.filter(p => userWarehouseIds.includes(p.warehouseId));
-        
+
         setProducts(filteredProducts);
         setWarehouses(activeUserWarehouses);
-        
+
         // Auto-select the first warehouse if only one
         if (activeUserWarehouses.length === 1) {
           setSelectedWarehouse(activeUserWarehouses[0].id);
         }
-      } else {
+      } else if (role === ROLES.APP_ADMIN) {
         // App admin sees all warehouses and products
         const [productsData, warehousesData] = await Promise.all([
           FirestoreService.getAllProducts(),
           FirestoreService.getAllWarehouses()
         ]);
         setProducts(productsData);
+        setWarehouses(warehousesData.filter(w => w.status === 'active'));
+      } else if (role === ROLES.CLIENT_ADMIN) {
+        // Client admin sees all warehouses and products (they can buy from any warehouse)
+        // But cannot create/edit products (only view for purchasing)
+        const [productsData, warehousesData] = await Promise.all([
+          FirestoreService.getAllProducts(),
+          FirestoreService.getAllWarehouses()
+        ]);
+        setProducts(productsData.filter(p => p.status === 'active'));
         setWarehouses(warehousesData.filter(w => w.status === 'active'));
       }
     } catch (error) {
@@ -78,7 +87,7 @@ export default function ProductsPage() {
     if (typeof window !== 'undefined' && warehouses.length > 0) {
       const urlParams = new URLSearchParams(window.location.search);
       const warehouseParam = urlParams.get('warehouse');
-      
+
       if (warehouseParam) {
         setSelectedWarehouse(warehouseParam);
         // Auto-open form for adding product to specific warehouse
@@ -105,15 +114,15 @@ export default function ProductsPage() {
       } else {
         // Create new product
         const warehouseId = formData.warehouseId || (role === ROLES.WAREHOUSE_ADMIN && warehouses.length > 0 ? warehouses[0].id : '');
-        
+
         const productData = {
           ...formData,
           warehouseId,
           createdBy: user?.uid || ''
         };
-        
 
-        
+
+
         await FirestoreService.createProduct(productData);
         alert('Produto criado com sucesso!');
       }
@@ -131,9 +140,9 @@ export default function ProductsPage() {
 
   const resetForm = () => {
     const warehouseId = role === ROLES.WAREHOUSE_ADMIN && warehouses.length > 0 ? warehouses[0].id : '';
-    
 
-    
+
+
     setFormData({
       name: '',
       description: '',
@@ -170,11 +179,24 @@ export default function ProductsPage() {
   const handleStatusToggle = async (product: Product) => {
     try {
       const newStatus = product.status === 'active' ? 'inactive' : 'active';
+
+      // Optimistic update - update UI immediately
+      setProducts(prevProducts =>
+        prevProducts.map(p =>
+          p.id === product.id ? { ...p, status: newStatus } : p
+        )
+      );
+
       await FirestoreService.updateDocument('products', product.id, { status: newStatus });
-      loadData();
       alert(`Produto ${newStatus === 'active' ? 'ativado' : 'desativado'} com sucesso!`);
     } catch (error) {
       console.error('Error updating product status:', error);
+      // Revert optimistic update on error
+      setProducts(prevProducts =>
+        prevProducts.map(p =>
+          p.id === product.id ? { ...p, status: product.status } : p
+        )
+      );
       alert('Erro ao atualizar status do produto.');
     }
   };
@@ -197,8 +219,8 @@ export default function ProductsPage() {
     return warehouse ? warehouse.name : 'Galpão não encontrado';
   };
 
-  const filteredProducts = selectedWarehouse === 'all' 
-    ? products 
+  const filteredProducts = selectedWarehouse === 'all'
+    ? products
     : products.filter(p => p.warehouseId === selectedWarehouse);
 
   if (loading) {
@@ -222,36 +244,40 @@ export default function ProductsPage() {
                 {role === ROLES.WAREHOUSE_ADMIN ? 'Meus Produtos' : 'Produtos'}
               </h1>
               <p className="text-gray-600 mt-2">
-                {role === ROLES.WAREHOUSE_ADMIN 
+                {role === ROLES.WAREHOUSE_ADMIN
                   ? 'Gerencie os produtos do seu galpão'
                   : 'Gerencie o catálogo de produtos dos galpões'
                 }
               </p>
-              
+
 
             </div>
             <div className="flex gap-4 items-center">
               {/* View Toggle */}
-              <div className="flex items-center bg-gray-100 rounded-lg p-1">
+              <div className="flex items-center bg-gray-200 rounded-lg p-1 border">
                 <button
                   onClick={() => setViewMode('cards')}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    viewMode === 'cards'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-800'
-                  }`}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${viewMode === 'cards'
+                      ? 'bg-white text-blue-600 shadow-md border border-blue-200'
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                    }`}
                 >
-                  📋 Cards
+                  <span className="flex items-center gap-2">
+                    <span>🔲</span>
+                    <span>Cards</span>
+                  </span>
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    viewMode === 'list'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-800'
-                  }`}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${viewMode === 'list'
+                      ? 'bg-white text-blue-600 shadow-md border border-blue-200'
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                    }`}
                 >
-                  📝 Lista
+                  <span className="flex items-center gap-2">
+                    <span>📋</span>
+                    <span>Lista</span>
+                  </span>
                 </button>
               </div>
 
@@ -489,8 +515,8 @@ export default function ProductsPage() {
                 <div key={product.id} className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
                   {product.imageUrl && (
                     <div className="h-48 bg-gray-200 relative">
-                      <Image 
-                        src={product.imageUrl} 
+                      <Image
+                        src={product.imageUrl}
                         alt={product.name}
                         fill
                         className="object-cover"
@@ -501,7 +527,7 @@ export default function ProductsPage() {
                       />
                     </div>
                   )}
-                  
+
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-4">
                       <h3 className="text-xl font-bold text-gray-800">{product.name}</h3>
@@ -509,11 +535,10 @@ export default function ProductsPage() {
                         <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
                           {product.category}
                         </span>
-                        <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
-                          product.status === 'active' 
-                            ? 'bg-green-100 text-green-800' 
+                        <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${product.status === 'active'
+                            ? 'bg-green-100 text-green-800'
                             : 'bg-red-100 text-red-800'
-                        }`}>
+                          }`}>
                           {product.status === 'active' ? '🟢 Ativo' : '🔴 Inativo'}
                         </span>
                       </div>
@@ -571,11 +596,10 @@ export default function ProductsPage() {
                         </button>
                         <button
                           onClick={() => handleStatusToggle(product)}
-                          className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium ${
-                            product.status === 'active'
+                          className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium ${product.status === 'active'
                               ? 'bg-orange-600 text-white hover:bg-orange-700'
                               : 'bg-green-600 text-white hover:bg-green-700'
-                          }`}
+                            }`}
                         >
                           {product.status === 'active' ? '⏸️ Desativar' : '▶️ Ativar'}
                         </button>
@@ -666,11 +690,10 @@ export default function ProductsPage() {
                           <div className="text-sm text-gray-500">Custo: R$ {product.costPrice.toFixed(2)}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            product.status === 'active' 
-                              ? 'bg-green-100 text-green-800' 
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.status === 'active'
+                              ? 'bg-green-100 text-green-800'
                               : 'bg-red-100 text-red-800'
-                          }`}>
+                            }`}>
                             {product.status === 'active' ? '🟢 Ativo' : '🔴 Inativo'}
                           </span>
                         </td>
@@ -713,7 +736,7 @@ export default function ProductsPage() {
                 {selectedWarehouse === 'all' ? 'Nenhum produto cadastrado' : 'Nenhum produto neste galpão'}
               </h3>
               <p className="text-gray-600 mb-6">
-                {selectedWarehouse === 'all' 
+                {selectedWarehouse === 'all'
                   ? 'Comece criando seu primeiro produto no sistema'
                   : 'Este galpão ainda não possui produtos cadastrados'
                 }

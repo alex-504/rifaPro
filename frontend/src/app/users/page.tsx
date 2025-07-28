@@ -32,6 +32,93 @@ export default function UsersPage() {
     }
   };
 
+  const handleDeleteUser = async (user: User) => {
+    try {
+      // Check for dependencies before deleting
+      const dependencies = await checkUserDependencies(user);
+      
+      if (dependencies.length > 0) {
+        const dependencyList = dependencies.join('\n• ');
+        alert(`Não é possível excluir este usuário pois ele possui dependências:\n\n• ${dependencyList}\n\nRemova essas dependências primeiro ou desative o usuário.`);
+        return;
+      }
+
+      if (confirm(`Tem certeza que deseja excluir o usuário "${user.name}"?\n\nEsta ação não pode ser desfeita!\n\n${user.role === ROLES.CLIENT_ADMIN ? 'ATENÇÃO: Isso também deletará a empresa associada e a conta de login.' : ''}`)) {
+        
+        // For CLIENT_ADMIN, we need to delete related data
+        if (user.role === ROLES.CLIENT_ADMIN && user.clientId) {
+          console.log('🗑️ Deleting CLIENT_ADMIN and related data...');
+          
+          // Delete the client document
+          await FirestoreService.deleteDocument('clients', user.clientId);
+          console.log('✅ Client document deleted');
+        }
+        
+        // Delete the user document
+        await FirestoreService.deleteDocument('users', user.id);
+        console.log('✅ User document deleted');
+        
+        // Note: Firebase Auth account deletion would require admin SDK
+        // For now, we'll leave a note about manual cleanup
+        
+        alert(`Usuário excluído com sucesso!${user.role === ROLES.CLIENT_ADMIN ? '\n\nNOTA: A conta de login ainda existe no Firebase Auth e deve ser removida manualmente se necessário.' : ''}`);
+        loadUsers();
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Erro ao excluir usuário. Tente novamente.');
+    }
+  };
+
+  const checkUserDependencies = async (user: User): Promise<string[]> => {
+    const dependencies: string[] = [];
+
+    try {
+      // Check if user is a driver
+      if (user.role === ROLES.DRIVER) {
+        const drivers = await FirestoreService.getAllDrivers();
+        const driverRecord = drivers.find(d => d.userId === user.id);
+        if (driverRecord) {
+          dependencies.push(`Registro de motorista ativo`);
+          
+          // Check if driver has trucks assigned
+          const trucks = await FirestoreService.getAllTrucks();
+          const assignedTrucks = trucks.filter(t => t.currentDriverId === driverRecord.id);
+          if (assignedTrucks.length > 0) {
+            dependencies.push(`${assignedTrucks.length} caminhão(ões) atribuído(s)`);
+          }
+        }
+      }
+
+      // Check if user is a client_admin with active client
+      if (user.role === ROLES.CLIENT_ADMIN && user.clientId) {
+        const drivers = await FirestoreService.getDriversByClient(user.clientId);
+        if (drivers.length > 0) {
+          dependencies.push(`${drivers.length} motorista(s) vinculado(s)`);
+        }
+
+        const trucks = await FirestoreService.getTrucksByClient(user.clientId);
+        if (trucks.length > 0) {
+          dependencies.push(`${trucks.length} caminhão(ões) vinculado(s)`);
+        }
+      }
+
+      // Check if user is a warehouse_admin
+      if (user.role === ROLES.WAREHOUSE_ADMIN) {
+        const warehouses = await FirestoreService.getWarehousesByOwner(user.id);
+        if (warehouses.length > 0) {
+          dependencies.push(`${warehouses.length} galpão(ões) sob responsabilidade`);
+        }
+      }
+
+    } catch (error) {
+      console.error('Error checking dependencies:', error);
+      dependencies.push('Erro ao verificar dependências - operação cancelada por segurança');
+    }
+
+    return dependencies;
+  };
+
   const [creating, setCreating] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,20 +130,37 @@ export default function UsersPage() {
       // We'll create the user document directly in Firestore with a generated ID
       // and let them set their password on first login
 
-      const userData = {
-        name: formData.name,
-        email: formData.email,
-        role: formData.role as Role,
-        status: 'pending' as const, // They'll need to complete setup
-        needsPasswordSetup: true,
-        ...(formData.clientId.trim() && { clientId: formData.clientId }),
-      };
+      if (formData.role === ROLES.CLIENT_ADMIN) {
+        // Para client_admin, criamos apenas um documento temporário para validação
+        // O documento real será criado durante o onboarding com o UID correto
+        const tempUserData = {
+          name: formData.name,
+          email: formData.email,
+          role: formData.role as Role,
+          status: 'pending' as const,
+          needsPasswordSetup: true,
+          isTemporary: true, // Flag para identificar que é temporário
+        };
+        await FirestoreService.createUser(tempUserData);
+      } else {
+        // Para outros roles, mantemos o comportamento atual
+        const userData = {
+          name: formData.name,
+          email: formData.email,
+          role: formData.role as Role,
+          status: 'pending' as const,
+          needsPasswordSetup: true,
+          ...(formData.clientId.trim() && { clientId: formData.clientId }),
+        };
+        await FirestoreService.createUser(userData);
+      }
 
-      // Create user document in Firestore (they'll complete auth setup later)
-      await FirestoreService.createUser(userData);
-
-      // Success! Your admin session is completely unaffected
-      alert(`Usuário criado com sucesso!\n\nInstrua o usuário a:\n1. Acessar: ${window.location.origin}/complete-signup\n2. Inserir o email: ${formData.email}\n3. Criar uma senha\n\nApós isso, eles poderão fazer login normalmente.`);
+      // Different success messages based on role
+      if (formData.role === ROLES.CLIENT_ADMIN) {
+        alert(`Cliente criado com sucesso!\n\nEnvie o link de onboarding para o cliente:\n\n${window.location.origin}/onboarding/client-setup?email=${encodeURIComponent(formData.email)}\n\nO cliente irá:\n1. Criar sua senha\n2. Cadastrar dados da empresa\n3. Começar a usar o sistema\n\nNOTA: O documento do usuário será criado automaticamente durante o onboarding com o UID correto do Firebase Auth.`);
+      } else {
+        alert(`Usuário criado com sucesso!\n\nInstrua o usuário a:\n1. Acessar: ${window.location.origin}/complete-signup\n2. Inserir o email: ${formData.email}\n3. Criar uma senha\n\nApós isso, eles poderão fazer login normalmente.`);
+      }
 
       // Reset form and reload users
       setFormData({ name: '', email: '', role: ROLES.DRIVER, clientId: '' });
@@ -80,7 +184,7 @@ export default function UsersPage() {
   }
 
   return (
-    <ProtectedRoute allowedRoles={[ROLES.APP_ADMIN, ROLES.CLIENT_ADMIN]}>
+    <ProtectedRoute allowedRoles={[ROLES.APP_ADMIN]}>
       <div className="min-h-screen bg-gray-100 p-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
@@ -198,6 +302,9 @@ export default function UsersPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     Criado em
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                    Ações
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -224,6 +331,17 @@ export default function UsersPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                       {user.createdAt?.toDate().toLocaleDateString('pt-BR')}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button
+                        onClick={() => handleDeleteUser(user)}
+                        className="text-gray-400 hover:text-red-600 transition-colors duration-200 p-1 rounded"
+                        title={`Excluir usuário ${user.name}`}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
                     </td>
                   </tr>
                 ))}
